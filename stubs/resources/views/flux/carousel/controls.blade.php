@@ -127,19 +127,35 @@ $nextButtonClasses = match ($variant) {
             class="{{ $nextButtonClasses }}"
             {{-- For wizard variant on last step: --}}
             {{-- - If wire:submit is provided, call the method and dispatch finish event --}}
-            {{-- - If no wire:submit, just navigate (no finish action) --}}
+            {{-- - If no wire:submit but has parent carousel, advance parent on last step --}}
+            {{-- - Otherwise, just navigate normally --}}
             @if ($variant === 'wizard')
                 @if ($wireSubmit)
                     x-on:click.prevent="if (isLast()) { $wire.call('{{ $wireSubmit }}'); $dispatch('carousel-finish'); } else { next(); }"
                 @else
-                    x-on:click.prevent="next()"
+                    {{-- Only advance parent on the actual last step, otherwise advance this carousel --}}
+                    {{-- Must check: totalSteps > 0 to ensure carousel is initialized, and isLast() to ensure we're on final step --}}
+                    x-on:click.prevent="
+                        if (totalSteps > 0 && isLast() && parentCarousel && parent && typeof parent.next === 'function') {
+                            parent.next();
+                        } else {
+                            next();
+                        }
+                    "
                 @endif
             @else
                 x-on:click.prevent="next()"
             @endif
-            {{-- For wizard variant with wire:submit, don't disable on last step (allow "Complete" action) --}}
-            {{-- For wizard without wire:submit, disable on last step like normal --}}
-            :disabled="{{ ($variant === 'wizard' && $wireSubmit) ? 'false' : '!canGoNext()' }}"
+            {{-- Hide button on last step only if: wizard variant, no wire:submit, no parent carousel, and no loop --}}
+            {{-- Show button if: not on last step, OR has parent carousel on last step, OR loop is enabled --}}
+            {{-- Explicit check: hide only when isLast() AND !parentCarousel AND !loop --}}
+            x-show="{{ ($variant === 'wizard' && !$wireSubmit) ? '!(isLast() && !parentCarousel && !loop)' : 'true' }}"
+            {{-- Enable button if: --}}
+            {{-- - Has wire:submit (always enabled, shows "Finish" on last step) --}}
+            {{-- - Can go to next step (not on last step) --}}
+            {{-- - Is on last step but has parent carousel (to advance parent) - ONLY on final step --}}
+            {{-- - Loop is enabled (can always go next) --}}
+            :disabled="{{ ($variant === 'wizard' && $wireSubmit) ? 'false' : ($variant === 'wizard' ? '!(!isLast() || (isLast() && parentCarousel && parent && typeof parent.next === \"function\") || loop)' : '!canGoNext()') }}"
             aria-label="{{ $nextLabel }}"
         >
             @if ($variant === 'wizard' && $wireSubmit)

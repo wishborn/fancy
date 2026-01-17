@@ -40,6 +40,7 @@
     'name' => null, // Carousel instance name (for external control)
     'headless' => false, // Hide progress indicators (useful for agentic workflows)
     'wireSubmit' => null, // Livewire method to call on wizard finish (shorthand for wire:submit on controls)
+    'parentCarousel' => null, // Parent carousel ID/name (for nested carousels in wizard variants)
 ])
 
 @php
@@ -96,13 +97,23 @@ $classes = Flux::classes()
         variant: '{{ $variant }}',
         {{-- Headless mode for hiding indicators --}}
         headless: {{ $headless ? 'true' : 'false' }},
+        {{-- Parent carousel reference (for nested carousels) --}}
+        parentCarousel: {{ $parentCarousel ? "'{$parentCarousel}'" : 'null' }},
+        {{-- Get parent carousel helper (for wizard variants) --}}
+        get parent() {
+            if (!this.parentCarousel) return null;
+            return window.Flux?.carousel?.(this.parentCarousel) || null;
+        },
         {{-- Initialize the carousel --}}
         init() {
             {{-- Collect steps after a short delay to ensure DOM is ready --}}
             this.$nextTick(() => {
                 this.collectSteps();
-                if (this.steps.length > 0 && !this.active) {
-                    this.active = this.steps[0];
+                if (this.steps.length > 0) {
+                    {{-- Set active step if not already set or if current active is invalid --}}
+                    if (!this.active || !this.steps.includes(this.active)) {
+                        this.active = this.steps[0];
+                    }
                 }
             });
             if (this.autoplay) {
@@ -110,8 +121,19 @@ $classes = Flux::classes()
             }
         },
         {{-- Collect step names from DOM --}}
+        {{-- Only collect direct children, not nested carousel steps --}}
         collectSteps() {
-            this.steps = Array.from(this.$el.querySelectorAll('[data-flux-carousel-step-item]'))
+            {{-- Find the panels container (direct child) --}}
+            const panelsContainer = this.$el.querySelector('[data-flux-carousel-panels]');
+            if (!panelsContainer) {
+                this.steps = [];
+                return;
+            }
+            {{-- Only query step items that are direct children of the panels container --}}
+            {{-- This prevents collecting steps from nested carousels --}}
+            {{-- Use children array instead of :scope selector for better compatibility --}}
+            this.steps = Array.from(panelsContainer.children)
+                .filter(el => el.hasAttribute('data-flux-carousel-step-item'))
                 .map(el => el.dataset.name)
                 .filter(name => name);
         },
@@ -183,10 +205,16 @@ $classes = Flux::classes()
         },
         {{-- Check if can go to previous --}}
         canGoPrev() {
+            if (this.totalSteps === 0) return false;
+            {{-- If no active step but steps exist, allow navigation --}}
+            if (this.activeIndex === -1 && this.totalSteps > 0) return true;
             return this.loop || this.activeIndex > 0;
         },
         {{-- Check if can go to next --}}
         canGoNext() {
+            if (this.totalSteps === 0) return false;
+            {{-- If no active step but steps exist, allow navigation --}}
+            if (this.activeIndex === -1 && this.totalSteps > 0) return true;
             return this.loop || this.activeIndex < this.totalSteps - 1;
         },
         {{-- Check if on first step --}}

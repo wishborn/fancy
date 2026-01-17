@@ -41,6 +41,10 @@ See the demo app for more examples.
 <flux:color-picker wire:model="color" />
 ```
 
+## Documentation
+
+For comprehensive usage instructions, examples, and API reference, see the [Usage Guide](USAGE.md).
+
 ## Requirements
 
 - PHP 8.2+

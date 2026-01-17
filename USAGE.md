@@ -13,6 +13,7 @@ Comprehensive usage instructions for all Fancy Flux components with tested examp
   - [Dynamic Slides](#dynamic-slides)
   - [Headless Wizard Mode](#headless-wizard-mode)
   - [Programmatic Navigation](#programmatic-navigation)
+  - [Nested Carousels](#nested-carousels)
 - [Color Picker Component](#color-picker-component)
   - [Basic Usage](#basic-usage)
   - [Size Variants](#size-variants)
@@ -453,6 +454,149 @@ window.dispatchEvent(new CustomEvent('carousel-refresh', {
 }));
 ```
 
+### Nested Carousels
+
+Nested carousels are fully supported and operate independently. Each carousel maintains its own state and controls, ensuring complete isolation between parent and nested instances.
+
+#### Basic Nested Carousel
+
+Nest carousels inside carousel step items using custom content:
+
+```blade
+<flux:carousel variant="wizard" :loop="false" name="parent-wizard">
+    <flux:carousel.steps>
+        <flux:carousel.step name="step1" label="Step 1" />
+        <flux:carousel.step name="step2" label="Step 2" />
+        <flux:carousel.step name="step3" label="Step 3" />
+    </flux:carousel.steps>
+    
+    <flux:carousel.panels>
+        <flux:carousel.step.item name="step1">
+            <div class="p-6">Parent step 1 content</div>
+        </flux:carousel.step.item>
+        
+        <flux:carousel.step.item name="step2">
+            <div class="p-6">
+                <flux:heading size="md">Parent Step 2 - Contains Nested Wizard</flux:heading>
+                
+                {{-- Nested wizard inside step 2 --}}
+                <flux:carousel variant="wizard" :loop="false" name="nested-wizard" parentCarousel="parent-wizard">
+                    <flux:carousel.steps>
+                        <flux:carousel.step name="nested1" label="Nested 1" />
+                        <flux:carousel.step name="nested2" label="Nested 2" />
+                    </flux:carousel.steps>
+                    
+                    <flux:carousel.panels>
+                        <flux:carousel.step.item name="nested1">
+                            <div class="p-4">First nested step content.</div>
+                        </flux:carousel.step.item>
+                        
+                        <flux:carousel.step.item name="nested2">
+                            <div class="p-4">Second nested step content.</div>
+                        </flux:carousel.step.item>
+                    </flux:carousel.panels>
+                    
+                    <flux:carousel.controls />
+                </flux:carousel>
+            </div>
+        </flux:carousel.step.item>
+        
+        <flux:carousel.step.item name="step3">
+            <div class="p-6">Parent step 3 content</div>
+        </flux:carousel.step.item>
+    </flux:carousel.panels>
+    
+    <flux:carousel.controls />
+</flux:carousel>
+```
+
+#### Key Behaviors
+
+**Independence:**
+- Nested carousels do **NOT** inherit properties from parent carousels
+- Each carousel maintains its own independent state
+- Controls only affect the carousel they belong to
+
+**Isolation:**
+- Parent carousel controls do **NOT** affect nested carousels
+- Nested carousel controls do **NOT** affect parent carousel
+- Each carousel only collects its own direct step items (not nested steps)
+
+**Parent Advancement (Wizard Variants Only):**
+- On the final step of a nested wizard, the Next button can advance the parent wizard
+- Use the `parentCarousel` prop to enable this functionality
+- The nested carousel's final step Next button will call `parent.next()` automatically
+
+#### Nested Wizard with Parent Advancement
+
+When a nested wizard completes, it can automatically advance the parent wizard:
+
+```blade
+{{-- Parent wizard --}}
+<flux:carousel variant="wizard" :loop="false" name="parent-wizard">
+    {{-- ... parent steps ... --}}
+    
+    <flux:carousel.panels>
+        <flux:carousel.step.item name="step2">
+            {{-- Nested wizard with parentCarousel prop --}}
+            <flux:carousel 
+                variant="wizard" 
+                :loop="false" 
+                name="nested-wizard" 
+                parentCarousel="parent-wizard"
+            >
+                {{-- ... nested steps ... --}}
+                
+                {{-- On final step, Next button will advance parent wizard --}}
+                <flux:carousel.controls />
+            </flux:carousel>
+        </flux:carousel.step.item>
+    </flux:carousel.panels>
+</flux:carousel>
+```
+
+**Using wire:submit with Parent Advancement:**
+
+If you need to perform actions before advancing the parent, use `wire:submit`:
+
+```blade
+{{-- Nested wizard with wire:submit --}}
+<flux:carousel variant="wizard" :loop="false" name="nested-wizard" parentCarousel="parent-wizard">
+    {{-- ... nested steps ... --}}
+    
+    {{-- wire:submit handler can call parent.next() --}}
+    <flux:carousel.controls finishLabel="Complete" wire:submit="completeNestedWizard" />
+</flux:carousel>
+```
+
+**Livewire Component:**
+
+```php
+use FancyFlux\Concerns\InteractsWithCarousel;
+
+class WizardDemo extends Component
+{
+    use InteractsWithCarousel;
+    
+    public function completeNestedWizard(): void
+    {
+        // Perform validation, save data, etc.
+        $this->validate();
+        
+        // Advance the parent wizard
+        $this->carousel('parent-wizard')->next();
+    }
+}
+```
+
+#### Important Notes
+
+- **Nested carousels work with all variants** (wizard, directional, thumbnail)
+- **Parent advancement only works in wizard variants** - other variants don't support `parent.next()`
+- **Each carousel must have a unique `name`** when using nested carousels
+- **The `parentCarousel` prop** should match the parent carousel's `name` prop
+- **Nested carousels are completely independent** - no property inheritance or shared state
+
 ---
 
 ## Color Picker Component
@@ -533,6 +677,7 @@ Use standalone without a label:
 | `loop` | bool | `true` | Loop back to start after last slide |
 | `headless` | bool | `false` | Hide step indicators (wizard variant) |
 | `wire:submit` | string | `null` | Livewire method to call on wizard finish |
+| `parentCarousel` | string | `null` | Parent carousel ID/name (for nested carousels in wizard variants) |
 
 ### Color Picker Props
 
