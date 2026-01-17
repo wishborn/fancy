@@ -47,7 +47,7 @@ For comprehensive usage instructions, examples, and API reference, see the [Usag
 
 ## Demos
 
-Ready-to-use examples are available in the `/demos` folder. Copy the demo files into your Laravel application to get started quickly:
+Ready-to-use examples are available in the `demos/` folder. Copy the demo files into your Laravel application to get started quickly:
 
 - **Basic Carousel** - Simple data-driven carousel
 - **Wizard Form** - Multi-step form with validation
@@ -55,7 +55,7 @@ Ready-to-use examples are available in the `/demos` folder. Copy the demo files 
 - **Dynamic Carousel** - Add/remove slides dynamically
 - **Color Picker Examples** - All color picker variants
 
-See the [demos README](../../demos/README.md) for details.
+See the [demos README](demos/README.md) for details.
 
 ## Requirements
 
