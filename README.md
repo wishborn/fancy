@@ -45,6 +45,18 @@ See the demo app for more examples.
 
 For comprehensive usage instructions, examples, and API reference, see the [Usage Guide](USAGE.md).
 
+## Demos
+
+Ready-to-use examples are available in the `/demos` folder. Copy the demo files into your Laravel application to get started quickly:
+
+- **Basic Carousel** - Simple data-driven carousel
+- **Wizard Form** - Multi-step form with validation
+- **Nested Carousel** - Nested carousels with parent advancement
+- **Dynamic Carousel** - Add/remove slides dynamically
+- **Color Picker Examples** - All color picker variants
+
+See the [demos README](../../demos/README.md) for details.
+
 ## Requirements
 
 - PHP 8.2+
