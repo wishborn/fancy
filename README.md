@@ -59,6 +59,37 @@ A composable emoji picker component with category navigation, search, and custom
 composer require wishborn/fancy-flux
 ```
 
+### Component Prefix Configuration
+
+To avoid naming conflicts with official Flux components or other custom components, you can configure a custom prefix for Fancy Flux components.
+
+**Publish the config file:**
+```bash
+php artisan vendor:publish --tag=fancy-flux-config
+```
+
+**Set in your `.env` file:**
+```env
+FANCY_FLUX_PREFIX=fancy
+FANCY_FLUX_USE_FLUX_NAMESPACE=true
+```
+
+**Usage Examples:**
+
+- **No prefix (default):** Components available as `<flux:carousel>`
+- **With prefix 'fancy':** Components available as `<fancy:carousel>` (and optionally `<flux:carousel>` if `FANCY_FLUX_USE_FLUX_NAMESPACE=true`)
+
+**Configuration Options:**
+
+- `FANCY_FLUX_PREFIX` - Custom prefix for components (e.g., `fancy`, `custom`, `myapp`)
+- `FANCY_FLUX_USE_FLUX_NAMESPACE` - When `true`, components are also available in the `flux` namespace for backward compatibility. Set to `false` to use ONLY the prefixed namespace.
+
+**Why use a prefix?**
+
+- **Avoid conflicts:** If Flux releases an official `carousel` component, your prefixed version won't conflict
+- **Multiple packages:** If you use multiple custom Flux component packages, prefixes prevent conflicts
+- **Clear ownership:** Makes it clear which components are from Fancy Flux vs official Flux
+
 ## Documentation
 
 - **[Usage Guide](USAGE.md)** - Comprehensive documentation for all components
@@ -66,6 +97,7 @@ composer require wishborn/fancy-flux
   - [Carousel](docs/carousel.md)
   - [Color Picker](docs/color-picker.md)
   - [Emoji Select](docs/emoji-select.md)
+- **[Prefix Configuration](docs/prefix-configuration.md)** - Configure custom component prefixes to avoid naming conflicts
 
 ## Demos
 

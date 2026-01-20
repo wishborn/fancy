@@ -14,6 +14,23 @@ Custom Flux UI components for Laravel Livewire applications. Provides enhanced c
 composer require wishborn/fancy-flux
 ```
 
+**Component Prefix Configuration:**
+
+To avoid naming conflicts with official Flux components, you can configure a custom prefix:
+
+```bash
+php artisan vendor:publish --tag=fancy-flux-config
+```
+
+Set in `.env`:
+```env
+FANCY_FLUX_PREFIX=fancy
+FANCY_FLUX_USE_FLUX_NAMESPACE=true
+```
+
+- **No prefix (default):** Components available as `<flux:carousel>`
+- **With prefix:** Components available as `<fancy:carousel>` (and optionally `<flux:carousel>`)
+
 ### Carousel Component
 
 The carousel component supports data-driven and slot-based usage patterns with multiple variants.
@@ -131,11 +148,12 @@ Composable emoji picker with category navigation and search.
 
 ### Key Conventions
 
-- **Component Namespace**: All components use the flux: namespace (e.g., flux:carousel, flux:color-picker)
+- **Component Namespace**: Components use the `flux:` namespace by default (e.g., `flux:carousel`, `flux:color-picker`). If a custom prefix is configured (via `FANCY_FLUX_PREFIX`), components are also available with that prefix (e.g., `fancy:carousel`).
 - **Livewire Integration**: Components work seamlessly with wire:model and wire:submit
 - **Unique Names**: When using multiple carousels, always provide unique name props
 - **Nested Carousels**: Use parentCarousel prop to link nested carousels to their parent
 - **Programmatic Control**: Use InteractsWithCarousel trait in Livewire components for programmatic navigation
+- **Prefix Configuration**: Use a custom prefix to avoid conflicts with official Flux components or other custom component packages
 
 ### Documentation
 

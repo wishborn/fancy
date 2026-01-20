@@ -16,7 +16,10 @@ class FancyFluxServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/fancy-flux.php',
+            'fancy-flux'
+        );
     }
 
     /**
@@ -27,24 +30,38 @@ class FancyFluxServiceProvider extends ServiceProvider
         $this->bootComponentPath();
         $this->bootCarousel();
         $this->publishAssets();
+        $this->publishConfig();
     }
 
     /**
      * Register the component path for fancy-flux components.
-     * Components will be available as <flux:carousel> and <flux:color-picker>
      * 
-     * Note: Laravel checks all registered paths for a namespace, so both
-     * Flux's components and fancy-flux components will be available.
+     * Components can be registered with a custom prefix to avoid conflicts
+     * with official Flux components or other custom components.
+     * 
+     * Configuration:
+     *   - FANCY_FLUX_PREFIX: Custom prefix (e.g., 'fancy' for <fancy:carousel>)
+     *   - FANCY_FLUX_USE_FLUX_NAMESPACE: Also register in 'flux' namespace (default: true)
+     * 
+     * Examples:
+     *   - No prefix: <flux:carousel> (default)
+     *   - Prefix 'fancy': <fancy:carousel> (and optionally <flux:carousel>)
      */
     protected function bootComponentPath(): void
     {
-        // Register fancy-flux components in the flux namespace
-        // This allows them to work alongside original Flux components
-        // Laravel will check all registered paths for the 'flux' namespace
-        Blade::anonymousComponentPath(
-            __DIR__.'/../stubs/resources/views/flux',
-            'flux'
-        );
+        $prefix = config('fancy-flux.prefix');
+        $useFluxNamespace = config('fancy-flux.use_flux_namespace', true);
+        $componentPath = __DIR__.'/../stubs/resources/views/flux';
+
+        // Register components with custom prefix if set
+        if ($prefix) {
+            Blade::anonymousComponentPath($componentPath, $prefix);
+        }
+
+        // Register components in 'flux' namespace (for backward compatibility or default)
+        if ($useFluxNamespace || !$prefix) {
+            Blade::anonymousComponentPath($componentPath, 'flux');
+        }
     }
 
     /**
@@ -56,6 +73,18 @@ class FancyFluxServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../resources/js' => public_path('vendor/fancy-flux/js'),
             ], 'fancy-flux-assets');
+        }
+    }
+
+    /**
+     * Publish configuration file.
+     */
+    protected function publishConfig(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__.'/../config/fancy-flux.php' => config_path('fancy-flux.php'),
+            ], 'fancy-flux-config');
         }
     }
 }
