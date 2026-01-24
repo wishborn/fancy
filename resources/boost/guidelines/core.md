@@ -314,16 +314,66 @@ Composable emoji picker with category navigation and search.
 </flux:input.group>
 ```
 
+### Fancy Table Component
+
+Advanced data table with composable architecture. Named `<flux:fancy-table>` to avoid conflicts with official Flux Pro table.
+
+```blade
+{{-- Data-driven mode --}}
+<flux:fancy-table :columns="$columns" :rows="$rows" />
+
+{{-- Composable mode with trays --}}
+<flux:fancy-table name="users">
+    <flux:fancy-table.columns>
+        <flux:fancy-table.column name="name" label="Name" sortable />
+        <flux:fancy-table.column name="email" label="Email" />
+        <flux:fancy-table.column name="actions" label="" />
+    </flux:fancy-table.columns>
+    <flux:fancy-table.body :rows="$users">
+        <flux:fancy-table.row :row="$row">
+            <flux:fancy-table.cell>{{ $row->name }}</flux:fancy-table.cell>
+            <flux:fancy-table.cell>{{ $row->email }}</flux:fancy-table.cell>
+            <flux:fancy-table.cell>
+                <flux:fancy-table.tray.trigger :row="$row" />
+            </flux:fancy-table.cell>
+            <flux:fancy-table.tray :row="$row">
+                {{-- Expandable content --}}
+            </flux:fancy-table.tray>
+        </flux:fancy-table.row>
+    </flux:fancy-table.body>
+    <flux:fancy-table.pagination />
+</flux:fancy-table>
+```
+
+**Programmatic Control (FANCY Facade):**
+
+```php
+FANCY::table('users')->nextPage();
+FANCY::table('users')->goToPage(3);
+FANCY::table('users')->sortBy('name', 'asc');
+FANCY::table('users')->toggleTray('row-1');
+FANCY::table('users')->selectAll();
+```
+
+**Features:**
+- Data-driven and composable slot-based modes
+- Sortable, resizable, and reorderable columns
+- Expandable row trays with nested content (including carousels)
+- Multi-select with `wire:model` binding
+- Search with deep path query support
+- Carousel-powered pagination
+
 ### Key Conventions
 
-- **FANCY Facade**: Use `FANCY::` for emoji lookup (supports slugs AND emoticons like `:)`), carousel control, and configuration access
+- **FANCY Facade**: Use `FANCY::` for emoji lookup (supports slugs AND emoticons like `:)`), carousel control, table control, and configuration access
 - **Component Namespace**: Components use the `flux:` namespace by default. If `FANCY_FLUX_PREFIX` is configured, components are also available with that prefix.
 - **Livewire Integration**: Components work seamlessly with wire:model and wire:submit
-- **Unique Names**: When using multiple carousels, always provide unique name props
+- **Unique Names**: When using multiple carousels or tables, always provide unique name props
 - **Nested Carousels**: Use parentCarousel prop to link nested carousels to their parent
-- **Programmatic Control**: Use `FANCY::carousel('name')` (preferred) or InteractsWithCarousel trait
+- **Programmatic Control**: Use `FANCY::carousel('name')`, `FANCY::table('name')` (preferred) or traits
 - **Emoji Slugs**: Use kebab-case slugs like 'fire', 'thumbs-up', 'red-heart' for emojis
 - **Prefix Configuration**: Use a custom prefix to avoid conflicts with official Flux components
+- **Table Naming**: Use `<flux:fancy-table>` (not `<flux:table>`) to avoid conflicts with Flux Pro
 
 ### Documentation
 
