@@ -37,8 +37,7 @@ FANCY_FLUX_USE_FLUX_NAMESPACE=true
 
 The `FANCY` facade provides unified access to FancyFlux features:
 
-@verbatim
-<code-snippet name="FANCY Facade Usage" lang="php">
+```php
 // Emoji lookup
 FANCY::emoji('fire');           // Returns: 🔥
 FANCY::emoji()->list();         // Get all emoji slugs
@@ -54,15 +53,13 @@ FANCY::carousel('dynamic')->refreshAndGoTo('new-slide');
 FANCY::prefix();            // Custom prefix or null
 FANCY::usesFluxNamespace(); // true/false
 FANCY::components();        // List of components
-</code-snippet>
-@endverbatim
+```
 
 ### Action Component
 
 A reusable button component with state variants, icons, emojis, and flexible placement.
 
-@verbatim
-<code-snippet name="Action Component States" lang="blade">
+```blade
 <!-- Default state -->
 <flux:action>Default Action</flux:action>
 
@@ -74,13 +71,11 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 
 <!-- Alert state (pulse animation) -->
 <flux:action alert alert-icon="bell">Alert!</flux:action>
-</code-snippet>
-@endverbatim
+```
 
 **Icon Placement Options:**
 
-@verbatim
-<code-snippet name="Action Icon Placement" lang="blade">
+```blade
 <!-- Icon on left (default) -->
 <flux:action icon="pencil">Edit</flux:action>
 
@@ -92,13 +87,11 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 
 <!-- Icon below text -->
 <flux:action icon="info" icon-place="bottom">Info</flux:action>
-</code-snippet>
-@endverbatim
+```
 
 **Emoji Support:**
 
-@verbatim
-<code-snippet name="Action with Emojis" lang="blade">
+```blade
 <!-- Leading emoji -->
 <flux:action emoji="fire">Hot!</flux:action>
 <flux:action emoji="rocket" active>Launch</flux:action>
@@ -108,18 +101,15 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 
 <!-- Combined emojis -->
 <flux:action emoji="party-popper" emoji-trailing="sparkles">Celebrate</flux:action>
-</code-snippet>
-@endverbatim
+```
 
 **Size Variants:**
 
-@verbatim
-<code-snippet name="Action Sizes" lang="blade">
+```blade
 <flux:action size="sm">Small</flux:action>
 <flux:action size="md">Medium</flux:action>
 <flux:action size="lg">Large</flux:action>
-</code-snippet>
-@endverbatim
+```
 
 **Props Reference:**
 | Prop | Type | Default | Description |
@@ -144,23 +134,20 @@ The carousel component supports data-driven and slot-based usage patterns with m
 
 **Data-Driven (Simplest):**
 
-@verbatim
-<code-snippet name="Data-Driven Carousel" lang="blade">
-@@php
+```blade
+@php
 $slides = [
     ['name' => 'slide1', 'label' => 'First Slide', 'src' => '/images/slide1.jpg'],
     ['name' => 'slide2', 'label' => 'Second Slide', 'src' => '/images/slide2.jpg'],
 ];
-@@endphp
+@endphp
 
 <flux:carousel :data="$slides" autoplay />
-</code-snippet>
-@endverbatim
+```
 
 **Wizard Variant (Multi-Step Forms):**
 
-@verbatim
-<code-snippet name="Wizard Carousel" lang="blade">
+```blade
 <flux:carousel variant="wizard" :loop="false" name="wizard-form">
     <flux:carousel.steps>
         <flux:carousel.step name="account" label="Account" />
@@ -175,13 +162,11 @@ $slides = [
     
     <flux:carousel.controls wire:submit="submitWizard" />
 </flux:carousel>
-</code-snippet>
-@endverbatim
+```
 
 **Programmatic Navigation (FANCY Facade - Recommended):**
 
-@verbatim
-<code-snippet name="Programmatic Carousel Control" lang="php">
+```php
 class MyComponent extends Component
 {
     public function goToStep(string $stepName): void
@@ -195,13 +180,11 @@ class MyComponent extends Component
         FANCY::carousel('wizard')->next();
     }
 }
-</code-snippet>
-@endverbatim
+```
 
 **Legacy InteractsWithCarousel Trait:**
 
-@verbatim
-<code-snippet name="Carousel with Trait" lang="php">
+```php
 use FancyFlux\Concerns\InteractsWithCarousel;
 
 class MyComponent extends Component
@@ -214,13 +197,11 @@ class MyComponent extends Component
         $this->carousel('my-carousel')->goTo($stepName);
     }
 }
-</code-snippet>
-@endverbatim
+```
 
 **Nested Carousels:**
 
-@verbatim
-<code-snippet name="Nested Carousels" lang="blade">
+```blade
 <flux:carousel variant="wizard" :loop="false" name="parent-wizard">
     <flux:carousel.panels>
         <flux:carousel.step.item name="step1">
@@ -231,15 +212,13 @@ class MyComponent extends Component
         </flux:carousel.step.item>
     </flux:carousel.panels>
 </flux:carousel>
-</code-snippet>
-@endverbatim
+```
 
 ### Color Picker Component
 
 Native color input with enhanced UI and preset support.
 
-@verbatim
-<code-snippet name="Color Picker" lang="blade">
+```blade
 <flux:color-picker label="Primary Color" wire:model="primaryColor" />
 
 <!-- With custom presets -->
@@ -248,15 +227,13 @@ Native color input with enhanced UI and preset support.
     wire:model="brandColor"
     :presets="['3b82f6', '8b5cf6', 'ec4899']"
 />
-</code-snippet>
-@endverbatim
+```
 
 ### Emoji Select Component
 
 Composable emoji picker with category navigation and search.
 
-@verbatim
-<code-snippet name="Emoji Select" lang="blade">
+```blade
 <flux:emoji-select wire:model.live="selectedEmoji" />
 
 <!-- With label and custom placeholder -->
@@ -271,8 +248,7 @@ Composable emoji picker with category navigation and search.
     <flux:emoji-select wire:model.live="reactionEmoji" />
     <flux:input placeholder="Add a comment..." />
 </flux:input.group>
-</code-snippet>
-@endverbatim
+```
 
 ### Key Conventions
 

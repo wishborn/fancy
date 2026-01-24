@@ -157,6 +157,7 @@ FANCY_FLUX_ENABLE_DEMO_ROUTES=false
   - [Emoji Select](docs/emoji-select.md)
   - [FANCY Facade](docs/facade.md)
 - **[Prefix Configuration](docs/prefix-configuration.md)** - Configure custom component prefixes to avoid naming conflicts
+- **[Troubleshooting](TROUBLESHOOT.md)** - Common issues and solutions by version
 
 ## Demos
 
