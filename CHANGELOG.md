@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.15] - 2026-02-18
+
+### Added
+- **Timeline Component**: Interactive narrative timelines powered by TimelineJS3
+  - CDN-loaded TimelineJS3 with CSS isolation for Tailwind compatibility
+  - Data-driven with full data source or shorthand events array
+  - Eras, groups, and media support
+  - Lazy loading for carousel-nested contexts via `x-intersect` + IntersectionObserver
+  - Dark mode with scoped CSS overrides matching Flux's zinc palette
+  - Slot for overlay controls (navigation, zoom buttons)
+  - `Flux.timeline('name')` JS helper for programmatic control
+  - `FANCY::timeline('name')` facade for Livewire programmatic control
+  - `TimelineManager` and `TimelineController` following the Manager/Controller pattern
+  - Props: name, data, events, height, startAtSlide, startAtEnd, timenavPosition, timenavHeight, language, font, hashBookmark, dragging, options, lazy
+  - Browser tests with Pest 4 (14 tests, 25 assertions)
+  - Demo with standalone, custom controls, carousel integration, and shorthand syntax
+
+- **Kitchen Sink Demo - Impact Timeline**: Added timeline component to the Environmental page showing organizational impact milestones across environmental, social, and economic initiatives with eras
+
+### Fixed
+- **JS Helper Loading**: Added `timeline.js` import to app.js bundle (was missing, causing `Flux.timeline is not a function` errors for custom controls)
+
 ## [1.0.14] - 2026-01-24
 
 ### Added
@@ -205,6 +227,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Livewire 3.7+ / 4.0+
 - Flux UI 2.0+
 
+[1.0.15]: https://github.com/wishborn/fancy-flux/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/wishborn/fancy-flux/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/wishborn/fancy-flux/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/wishborn/fancy-flux/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/wishborn/fancy-flux/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/wishborn/fancy-flux/compare/v1.0.9...v1.0.10

@@ -14,6 +14,7 @@ use FancyFlux\FancyFlux;
  * @method static \FancyFlux\Repositories\EmojiRepository|string|null emoji(?string $slug = null)
  * @method static \FancyFlux\Managers\CarouselManager|\FancyFlux\Managers\CarouselController carousel(?string $name = null)
  * @method static \FancyFlux\Managers\DrawerManager|\FancyFlux\Managers\DrawerController drawer(?string $name = null)
+ * @method static \FancyFlux\Managers\TimelineManager|\FancyFlux\Managers\TimelineController timeline(?string $name = null)
  * @method static string|null prefix()
  * @method static bool usesFluxNamespace()
  * @method static array components()

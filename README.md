@@ -85,6 +85,30 @@ A composable emoji picker component with category navigation, search, and custom
 
 ---
 
+### 📅 Timeline
+
+Interactive narrative timelines powered by [TimelineJS3](https://timeline.knightlab.com/). Supports eras, groups, media, lazy loading in carousels, and dark mode.
+
+**Quick Example:**
+```blade
+<flux:timeline :data="$timeline" height="500px" />
+
+{{-- Shorthand with just events --}}
+<flux:timeline :events="$events" />
+
+{{-- Named with custom controls --}}
+<flux:timeline name="history" :data="$timeline">
+    <div class="flex gap-2 p-2">
+        <flux:button size="xs" icon="chevron-left" x-on:click="Flux.timeline('history').goToPrev()" />
+        <flux:button size="xs" icon="chevron-right" x-on:click="Flux.timeline('history').goToNext()" />
+    </div>
+</flux:timeline>
+```
+
+[📖 Full Documentation](docs/timeline.md) | [💡 Examples](demos/timeline-examples/)
+
+---
+
 ### 📈 D3 Visualizations (Moved to Fancy Pro)
 
 > **Note:** D3 visualizations have been moved to the [wishborn/fancy-pro](https://github.com/wishborn/fancy-pro) package for better separation of premium features.
@@ -148,6 +172,11 @@ FANCY::emoji()->emoticons();    // Get all supported emoticons
 // Carousel control
 FANCY::carousel('wizard')->next();
 FANCY::carousel('wizard')->goTo('step-3');
+
+// Timeline control
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->add([...]);
 
 // Table control
 FANCY::table('users')->nextPage();
@@ -228,6 +257,7 @@ FANCY_FLUX_ENABLE_DEMO_ROUTES=false
   - [Color Picker](docs/color-picker.md)
   - [Emoji](docs/emoji.md)
   - [Emoji Select](docs/emoji-select.md)
+  - [Timeline](docs/timeline.md)
   - [Fancy Table](docs/table.md)
   - [FANCY Facade](docs/facade.md)
 - **[Prefix Configuration](docs/prefix-configuration.md)** - Configure custom component prefixes to avoid naming conflicts
@@ -244,6 +274,7 @@ Ready-to-use examples are available in the `demos/` folder. Copy the demo files 
 - **Dynamic Carousel** - Add/remove slides dynamically
 - **Color Picker Examples** - All color picker variants
 - **Emoji Select Examples** - All emoji select variants
+- **Timeline Examples** - Standalone, with controls, inside carousel
 
 See the [demos README](demos/README.md) for details.
 

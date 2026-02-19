@@ -4,11 +4,12 @@ Custom Flux UI components for Laravel Livewire applications. Provides enhanced c
 
 ### Features
 
-- **FANCY Facade**: Unified API for programmatic access to emoji lookup, carousel control, and configuration
+- **FANCY Facade**: Unified API for programmatic access to emoji lookup, carousel control, timeline control, and configuration
 - **Action Component**: Reusable button with standalone colors, behavioral states (active, checked, warn, alert), shape variants (default, circle), avatars, badges, flexible icon/emoji placement, and dark mode
 - **Carousel Component**: Flexible carousel/slideshow with multiple variants (directional, wizard, thumbnail)
 - **Color Picker Component**: Native color input with enhanced UI, swatch preview, and preset support
 - **Emoji Select Component**: Composable emoji picker with category navigation, search, and customizable styling
+- **Timeline Component**: Interactive narrative timelines powered by TimelineJS3 with eras, groups, media, lazy loading, and dark mode
 
 ### Installation
 
@@ -48,6 +49,11 @@ FANCY::emoji()->search('heart'); // Search emojis
 FANCY::carousel('wizard')->next();
 FANCY::carousel('wizard')->goTo('step-3');
 FANCY::carousel('dynamic')->refreshAndGoTo('new-slide');
+
+// Timeline control
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']]);
 
 // Configuration
 FANCY::prefix();            // Custom prefix or null
@@ -314,6 +320,81 @@ Composable emoji picker with category navigation and search.
 </flux:input.group>
 ```
 
+### Timeline Component
+
+Interactive narrative timeline powered by TimelineJS3 (CDN-loaded). Supports eras, groups, media, and programmatic control.
+
+```blade
+{{-- Full data source --}}
+<flux:timeline :data="$timeline" height="500px" />
+
+{{-- Shorthand events array --}}
+<flux:timeline :events="$events" />
+
+{{-- With custom controls slot --}}
+<flux:timeline name="history" :data="$timeline">
+    <div class="flex gap-2 p-2">
+        <flux:button size="xs" icon="chevron-left" x-on:click="Flux.timeline('history').goToPrev()" />
+        <flux:button size="xs" icon="chevron-right" x-on:click="Flux.timeline('history').goToNext()" />
+    </div>
+</flux:timeline>
+
+{{-- Inside a carousel (lazy-loads) --}}
+<flux:carousel name="timelines" variant="directional">
+    <flux:carousel.panels>
+        <flux:carousel.panel name="history">
+            <flux:timeline name="company-history" :data="$history" />
+        </flux:carousel.panel>
+    </flux:carousel.panels>
+</flux:carousel>
+```
+
+**Programmatic Control:**
+
+```php
+FANCY::timeline('name')->goToNext();
+FANCY::timeline('name')->goToId('milestone-1');
+FANCY::timeline('name')->zoomIn();
+FANCY::timeline('name')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']]);
+FANCY::timeline('name')->updateData($newData);
+```
+
+**Data Format:**
+
+```php
+$data = [
+    'title' => ['text' => ['headline' => 'Title', 'text' => 'Subtitle']],
+    'eras' => [
+        ['start_date' => ['year' => 2020], 'end_date' => ['year' => 2023], 'text' => ['headline' => 'Phase 1']],
+    ],
+    'events' => [
+        [
+            'start_date' => ['year' => 2020, 'month' => 3],
+            'text' => ['headline' => 'Event', 'text' => 'Description'],
+            'group' => 'Category',
+        ],
+    ],
+];
+```
+
+**Props Reference:**
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | string | null | Instance name for external control |
+| `data` | array | null | Full TimelineJS3 JSON data source |
+| `events` | array | null | Shorthand: just the events array |
+| `height` | string | '600px' | Container height (CSS value) |
+| `start-at-slide` | int | 0 | Initial slide index |
+| `start-at-end` | bool | false | Start on last slide |
+| `timenav-position` | string | 'bottom' | Nav bar position: 'top' or 'bottom' |
+| `timenav-height` | int | null | Nav bar height in px |
+| `language` | string | 'en' | Language code |
+| `font` | string | null | Font pair name |
+| `hash-bookmark` | bool | false | URL hash navigation |
+| `dragging` | bool | true | Enable drag navigation |
+| `options` | array | [] | Passthrough for additional TL.Timeline options |
+| `lazy` | bool | true | Viewport-triggered init |
+
 ### Fancy Table Component
 
 Advanced data table with composable architecture. Named `<flux:fancy-table>` to avoid conflicts with official Flux Pro table.
@@ -420,12 +501,12 @@ FANCY::d3('graph')->highlight(['A', 'B']);
 
 ### Key Conventions
 
-- **FANCY Facade**: Use `FANCY::` for emoji lookup (supports slugs AND emoticons like `:)`), carousel control, table control, D3 control, and configuration access
+- **FANCY Facade**: Use `FANCY::` for emoji lookup (supports slugs AND emoticons like `:)`), carousel control, timeline control, table control, D3 control, and configuration access
 - **Component Namespace**: Components use the `flux:` namespace by default. If `FANCY_FLUX_PREFIX` is configured, components are also available with that prefix.
 - **Livewire Integration**: Components work seamlessly with wire:model and wire:submit
 - **Unique Names**: When using multiple carousels or tables, always provide unique name props
 - **Nested Carousels**: Use parentCarousel prop to link nested carousels to their parent
-- **Programmatic Control**: Use `FANCY::carousel('name')`, `FANCY::table('name')` (preferred) or traits
+- **Programmatic Control**: Use `FANCY::carousel('name')`, `FANCY::timeline('name')`, `FANCY::table('name')` (preferred) or traits
 - **Emoji Slugs**: Use kebab-case slugs like 'fire', 'thumbs-up', 'red-heart' for emojis
 - **Prefix Configuration**: Use a custom prefix to avoid conflicts with official Flux components
 - **Table Naming**: Use `<flux:fancy-table>` (not `<flux:table>`) to avoid conflicts with Flux Pro

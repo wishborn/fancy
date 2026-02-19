@@ -53,6 +53,7 @@ return [
         'emoji',
         'emoji-select',
         'fancy-table',
+        'timeline',
     ],
 
     /*

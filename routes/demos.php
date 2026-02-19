@@ -53,4 +53,7 @@ Route::prefix('fancy-flux-demos')->group(function () {
 
     Route::get('/drawer-examples', \App\Livewire\DrawerExamples::class)
         ->name('fancy-flux-demos.drawer-examples');
+
+    Route::get('/timeline-examples', \App\Livewire\TimelineDemo::class)
+        ->name('fancy-flux-demos.timeline-examples');
 });
