@@ -89,4 +89,39 @@
 
         <flux:timeline :events="$laravelTimeline['events']" height="450px" />
     </section>
+
+    <flux:separator />
+
+    {{-- Section 5: Compact Container --}}
+    <section>
+        <flux:heading size="lg" level="2">Compact Container</flux:heading>
+        <flux:text class="mt-1 mb-4">Timelines work in smaller containers too. Reduce the height and timenav to fit cards, sidebars, or dashboard widgets.</flux:text>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {{-- Card-sized timeline --}}
+            <flux:card>
+                <flux:heading size="base" level="3" class="mb-3">Product Roadmap</flux:heading>
+                <flux:timeline
+                    name="compact-card"
+                    :events="$compactTimeline['events']"
+                    height="250px"
+                    :timenav-height="50"
+                    :watermark="false"
+                />
+            </flux:card>
+
+            {{-- Minimal timeline with top nav --}}
+            <flux:card>
+                <flux:heading size="base" level="3" class="mb-3">Top Navigation</flux:heading>
+                <flux:timeline
+                    name="compact-topnav"
+                    :events="$compactTimeline['events']"
+                    height="250px"
+                    :timenav-height="50"
+                    timenav-position="top"
+                    :watermark="false"
+                />
+            </flux:card>
+        </div>
+    </section>
 </div>

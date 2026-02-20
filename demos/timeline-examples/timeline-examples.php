@@ -193,6 +193,43 @@ class TimelineExamples extends Component
         ],
     ];
 
+    public array $compactTimeline = [
+        'events' => [
+            [
+                'start_date' => ['year' => 2024, 'month' => 1],
+                'text' => [
+                    'headline' => 'Q1 Planning',
+                    'text' => '<p>Roadmap finalized and sprint goals set for the quarter.</p>',
+                ],
+                'unique_id' => 'q1',
+            ],
+            [
+                'start_date' => ['year' => 2024, 'month' => 4],
+                'text' => [
+                    'headline' => 'Beta Launch',
+                    'text' => '<p>First public beta released to early access users.</p>',
+                ],
+                'unique_id' => 'beta',
+            ],
+            [
+                'start_date' => ['year' => 2024, 'month' => 7],
+                'text' => [
+                    'headline' => 'GA Release',
+                    'text' => '<p>General availability with full feature set.</p>',
+                ],
+                'unique_id' => 'ga',
+            ],
+            [
+                'start_date' => ['year' => 2024, 'month' => 10],
+                'text' => [
+                    'headline' => 'V2 Kickoff',
+                    'text' => '<p>Version 2 development begins with new architecture.</p>',
+                ],
+                'unique_id' => 'v2',
+            ],
+        ],
+    ];
+
     public function render()
     {
         return view('fancy-flux-demos::timeline-examples.timeline-examples');

@@ -52,6 +52,7 @@
         - dragging: Enable drag navigation (bool, default: true)
         - options: Passthrough for additional TL.Timeline options (array, default: [])
         - lazy: Enable viewport-triggered init (bool, default: true)
+        - watermark: Show TimelineJS attribution (bool, default: true)
 
     Programmatic control (JS):
         Flux.timeline('name').goToNext()
@@ -79,6 +80,7 @@
     'dragging' => true,         // Enable drag navigation
     'options' => [],            // Passthrough for additional TL.Timeline options
     'lazy' => true,             // Viewport-triggered init
+    'watermark' => true,        // Show TimelineJS attribution
 ])
 
 @php
@@ -110,6 +112,7 @@ $optionsJson = json_encode((object) $mergedOptions);
 
 $containerClasses = Flux::classes()
     ->add('relative')
+    ->add(!$watermark ? 'hide-watermark' : '')
     ;
 @endphp
 
@@ -251,6 +254,10 @@ $containerClasses = Flux::classes()
     }
     .dark .tl-timeline-container .tl-menubar .tl-menubar-button {
         color: #a1a1aa;
+    }
+    /* Hide TimelineJS attribution watermark when opted out */
+    .hide-watermark .tl-attribution {
+        display: none !important;
     }
 </style>
 
