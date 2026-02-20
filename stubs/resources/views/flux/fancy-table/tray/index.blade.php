@@ -78,17 +78,21 @@ $classes = Flux::classes()
                     @break
 
                 @case('d3')
-                    <flux:d3
-                        :type="$contentData['type'] ?? 'force'"
-                        :data="$contentData['data'] ?? []"
-                        :width="$contentData['width'] ?? null"
-                        :height="$contentData['height'] ?? 300"
-                        :colors="$contentData['colors'] ?? null"
-                        :tooltip="$contentData['tooltip'] ?? true"
-                        :zoom="$contentData['zoom'] ?? false"
-                        :animate="$contentData['animate'] ?? true"
-                        :name="$contentData['name'] ?? null"
-                    />
+                    @if (class_exists(\FancyPro\FancyProServiceProvider::class))
+                        <flux:d3
+                            :type="$contentData['type'] ?? 'force'"
+                            :data="$contentData['data'] ?? []"
+                            :width="$contentData['width'] ?? null"
+                            :height="$contentData['height'] ?? 300"
+                            :colors="$contentData['colors'] ?? null"
+                            :tooltip="$contentData['tooltip'] ?? true"
+                            :zoom="$contentData['zoom'] ?? false"
+                            :animate="$contentData['animate'] ?? true"
+                            :name="$contentData['name'] ?? null"
+                        />
+                    @else
+                        <span class="text-xs text-zinc-400">[D3 requires fancy-pro]</span>
+                    @endif
                     @break
 
                 @default
