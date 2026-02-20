@@ -12,13 +12,15 @@ Custom Flux UI components for Laravel Livewire applications.
 
 ### ⚡ Action
 
-A reusable button component with state variants, icons, emojis, and flexible placement for action-oriented UI elements.
+A reusable button component with standalone colors, behavioral states, shape variants, avatars, badges, icons, emojis, and flexible placement.
 
 **Quick Example:**
 ```blade
 <flux:action icon="pencil">Edit</flux:action>
-<flux:action emoji="fire" active>Hot!</flux:action>
-<flux:action warn icon="exclamation-triangle">Warning</flux:action>
+<flux:action color="blue" emoji="fire">Hot!</flux:action>
+<flux:action color="red" badge="3">Alerts</flux:action>
+<flux:action variant="circle" icon="play" />
+<flux:action avatar="/img/user.jpg" badge="Admin">John</flux:action>
 ```
 
 [📖 Full Documentation](docs/action.md) | [💡 Examples](demos/action-examples/)
@@ -55,7 +57,22 @@ A native color input component with enhanced UI, swatch preview, and preset supp
 
 ---
 
-### 😀 Emoji Select
+### 😀 Emoji
+
+Display emojis using slugs, classic emoticons, or raw characters - like `flux:icon` but for emoji.
+
+**Quick Example:**
+```blade
+<flux:emoji name="fire" />           {{-- 🔥 from slug --}}
+<flux:emoji name=":)" />             {{-- 😊 from emoticon --}}
+<flux:emoji name="rocket" size="lg" />
+```
+
+[📖 Full Documentation](docs/emoji.md)
+
+---
+
+### 🎯 Emoji Select
 
 A composable emoji picker component with category navigation, search, and customizable styling.
 
@@ -68,6 +85,78 @@ A composable emoji picker component with category navigation, search, and custom
 
 ---
 
+### 📅 Timeline
+
+Interactive narrative timelines powered by [TimelineJS3](https://timeline.knightlab.com/). Supports eras, groups, media, lazy loading in carousels, and dark mode.
+
+**Quick Example:**
+```blade
+<flux:timeline :data="$timeline" height="500px" />
+
+{{-- Shorthand with just events --}}
+<flux:timeline :events="$events" />
+
+{{-- Named with custom controls --}}
+<flux:timeline name="history" :data="$timeline">
+    <div class="flex gap-2 p-2">
+        <flux:button size="xs" icon="chevron-left" x-on:click="Flux.timeline('history').goToPrev()" />
+        <flux:button size="xs" icon="chevron-right" x-on:click="Flux.timeline('history').goToNext()" />
+    </div>
+</flux:timeline>
+```
+
+[📖 Full Documentation](docs/timeline.md) | [💡 Examples](demos/timeline-examples/)
+
+---
+
+### 📈 D3 Visualizations (Moved to Fancy Pro)
+
+> **Note:** D3 visualizations have been moved to the [wishborn/fancy-pro](https://github.com/wishborn/fancy-pro) package for better separation of premium features.
+
+```bash
+composer require wishborn/fancy-pro
+```
+
+---
+
+### 📊 Fancy Table
+
+Advanced data table with composable architecture, expandable row trays, and Carousel-powered pagination.
+
+> **Note:** Named `<flux:fancy-table>` to avoid conflicts with official Flux Pro table component.
+
+**Quick Example:**
+```blade
+{{-- Data-driven mode --}}
+<flux:fancy-table :columns="$columns" :rows="$rows" />
+
+{{-- Composable mode --}}
+<flux:fancy-table>
+    <flux:fancy-table.columns>
+        <flux:fancy-table.column name="name" label="Name" sortable />
+        <flux:fancy-table.column name="email" label="Email" />
+    </flux:fancy-table.columns>
+    <flux:fancy-table.body :rows="$users">
+        <flux:fancy-table.row :row="$row">
+            <flux:fancy-table.cell>{{ $row->name }}</flux:fancy-table.cell>
+            <flux:fancy-table.cell>{{ $row->email }}</flux:fancy-table.cell>
+        </flux:fancy-table.row>
+    </flux:fancy-table.body>
+</flux:fancy-table>
+```
+
+**Features:**
+- Data-driven and composable slot-based modes
+- Sortable, resizable, and reorderable columns
+- Expandable row trays with nested content support
+- Multi-select with `wire:model` binding
+- Search with deep path query support
+- Carousel-powered pagination
+
+[📖 Full Documentation](docs/table.md)
+
+---
+
 ## FANCY Facade
 
 The `FANCY` facade provides programmatic access to FancyFlux features:
@@ -75,12 +164,24 @@ The `FANCY` facade provides programmatic access to FancyFlux features:
 ```php
 // Emoji lookup (787+ emojis with slug-based access)
 FANCY::emoji('fire');           // Returns: 🔥
+FANCY::emoji(':)');             // Returns: 😊 (emoticon support!)
 FANCY::emoji()->list();         // Get all emoji slugs
 FANCY::emoji()->search('heart'); // Search emojis
+FANCY::emoji()->emoticons();    // Get all supported emoticons
 
 // Carousel control
 FANCY::carousel('wizard')->next();
 FANCY::carousel('wizard')->goTo('step-3');
+
+// Timeline control
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->add([...]);
+
+// Table control
+FANCY::table('users')->nextPage();
+FANCY::table('users')->sortBy('name', 'asc');
+FANCY::table('users')->toggleTray('row-1');
 
 // Configuration
 FANCY::prefix();            // Custom prefix or null
@@ -154,7 +255,10 @@ FANCY_FLUX_ENABLE_DEMO_ROUTES=false
   - [Action](docs/action.md)
   - [Carousel](docs/carousel.md)
   - [Color Picker](docs/color-picker.md)
+  - [Emoji](docs/emoji.md)
   - [Emoji Select](docs/emoji-select.md)
+  - [Timeline](docs/timeline.md)
+  - [Fancy Table](docs/table.md)
   - [FANCY Facade](docs/facade.md)
 - **[Prefix Configuration](docs/prefix-configuration.md)** - Configure custom component prefixes to avoid naming conflicts
 - **[Troubleshooting](TROUBLESHOOT.md)** - Common issues and solutions by version
@@ -170,6 +274,7 @@ Ready-to-use examples are available in the `demos/` folder. Copy the demo files 
 - **Dynamic Carousel** - Add/remove slides dynamically
 - **Color Picker Examples** - All color picker variants
 - **Emoji Select Examples** - All emoji select variants
+- **Timeline Examples** - Standalone, with controls, inside carousel
 
 See the [demos README](demos/README.md) for details.
 

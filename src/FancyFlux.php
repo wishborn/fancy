@@ -5,6 +5,12 @@ namespace FancyFlux;
 use FancyFlux\Repositories\EmojiRepository;
 use FancyFlux\Managers\CarouselManager;
 use FancyFlux\Managers\CarouselController;
+use FancyFlux\Managers\DrawerManager;
+use FancyFlux\Managers\DrawerController;
+use FancyFlux\Managers\TableManager;
+use FancyFlux\Managers\TableController;
+use FancyFlux\Managers\TimelineManager;
+use FancyFlux\Managers\TimelineController;
 
 /**
  * Main FancyFlux service class.
@@ -18,6 +24,8 @@ use FancyFlux\Managers\CarouselController;
  * @example FANCY::emoji()->list()
  * @example FANCY::emoji('grinning-face') // shorthand for FANCY::emoji()->get('grinning-face')
  * @example FANCY::carousel('my-carousel')->next()
+ * @example FANCY::table('users')->refresh()
+ * @example FANCY::timeline('my-timeline')->goToNext()
  */
 class FancyFlux
 {
@@ -25,10 +33,19 @@ class FancyFlux
 
     protected CarouselManager $carouselManager;
 
+    protected DrawerManager $drawerManager;
+
+    protected TableManager $tableManager;
+
+    protected TimelineManager $timelineManager;
+
     public function __construct()
     {
         $this->emojiRepository = new EmojiRepository();
         $this->carouselManager = new CarouselManager();
+        $this->drawerManager = new DrawerManager();
+        $this->tableManager = new TableManager();
+        $this->timelineManager = new TimelineManager();
     }
 
     /**
@@ -69,6 +86,62 @@ class FancyFlux
         }
 
         return $this->carouselManager->get($name);
+    }
+
+    /**
+     * Access the drawer manager or get a controller for a specific drawer.
+     *
+     * @param string|null $name Optional drawer name for direct access
+     * @return DrawerManager|DrawerController Manager or controller instance
+     *
+     * @example FANCY::drawer()->get('settings') // Get drawer controller
+     * @example FANCY::drawer('settings')->open() // Direct access and open
+     * @example FANCY::drawer('settings')->goTo('advanced') // Navigate to panel
+     */
+    public function drawer(?string $name = null): DrawerManager|DrawerController
+    {
+        if ($name === null) {
+            return $this->drawerManager;
+        }
+
+        return $this->drawerManager->get($name);
+    }
+
+    /**
+     * Access the table manager or get a controller for a specific table.
+     *
+     * @param string|null $name Optional table name for direct access
+     * @return TableManager|TableController Manager or controller instance
+     *
+     * @example FANCY::table()->get('users') // Get table controller
+     * @example FANCY::table('users')->refresh() // Direct access and refresh
+     * @example FANCY::table('users')->selectAll() // Select all rows
+     */
+    public function table(?string $name = null): TableManager|TableController
+    {
+        if ($name === null) {
+            return $this->tableManager;
+        }
+
+        return $this->tableManager->get($name);
+    }
+
+    /**
+     * Access the timeline manager or get a controller for a specific timeline.
+     *
+     * @param string|null $name Optional timeline name for direct access
+     * @return TimelineManager|TimelineController Manager or controller instance
+     *
+     * @example FANCY::timeline()->get('history') // Get timeline controller
+     * @example FANCY::timeline('history')->goToNext() // Direct access and navigate
+     */
+    public function timeline(?string $name = null): TimelineManager|TimelineController
+    {
+        if ($name === null) {
+            return $this->timelineManager;
+        }
+
+        return $this->timelineManager->get($name);
     }
 
     /**

@@ -4,11 +4,12 @@ Custom Flux UI components for Laravel Livewire applications. Provides enhanced c
 
 ### Features
 
-- **FANCY Facade**: Unified API for programmatic access to emoji lookup, carousel control, and configuration
-- **Action Component**: Reusable button with state variants (active, warn, alert), flexible icon/emoji placement, and dark mode
+- **FANCY Facade**: Unified API for programmatic access to emoji lookup, carousel control, timeline control, and configuration
+- **Action Component**: Reusable button with standalone colors, behavioral states (active, checked, warn, alert), shape variants (default, circle), avatars, badges, flexible icon/emoji placement, and dark mode
 - **Carousel Component**: Flexible carousel/slideshow with multiple variants (directional, wizard, thumbnail)
 - **Color Picker Component**: Native color input with enhanced UI, swatch preview, and preset support
 - **Emoji Select Component**: Composable emoji picker with category navigation, search, and customizable styling
+- **Timeline Component**: Interactive narrative timelines powered by TimelineJS3 with eras, groups, media, lazy loading, and dark mode
 
 ### Installation
 
@@ -49,6 +50,11 @@ FANCY::carousel('wizard')->next();
 FANCY::carousel('wizard')->goTo('step-3');
 FANCY::carousel('dynamic')->refreshAndGoTo('new-slide');
 
+// Timeline control
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']]);
+
 // Configuration
 FANCY::prefix();            // Custom prefix or null
 FANCY::usesFluxNamespace(); // true/false
@@ -57,20 +63,53 @@ FANCY::components();        // List of components
 
 ### Action Component
 
-A reusable button component with state variants, icons, emojis, and flexible placement.
+A reusable button component with standalone colors, behavioral states, icons, emojis, avatars, badges, and flexible placement.
 
 ```blade
 <!-- Default state -->
 <flux:action>Default Action</flux:action>
 
-<!-- Active state (blue) -->
-<flux:action active>Active</flux:action>
+<!-- Standalone colors (independent of states) -->
+<flux:action color="blue">Blue</flux:action>
+<flux:action color="emerald">Emerald</flux:action>
+<flux:action color="red">Red</flux:action>
+<flux:action color="violet">Violet</flux:action>
 
-<!-- Warning state (amber) -->
-<flux:action warn icon="exclamation-triangle">Warning</flux:action>
+<!-- Behavioral states (use default colors when no color prop) -->
+<flux:action active>Active (blue)</flux:action>
+<flux:action checked>Checked (emerald)</flux:action>
+<flux:action warn icon="exclamation-triangle">Warning (amber)</flux:action>
+<flux:action alert alert-icon="bell">Alert (pulse)</flux:action>
 
-<!-- Alert state (pulse animation) -->
-<flux:action alert alert-icon="bell">Alert!</flux:action>
+<!-- Color + state (color wins, state adds behavior) -->
+<flux:action color="red" alert>Red + Pulsing</flux:action>
+```
+
+**Shape Variants:**
+
+```blade
+<!-- Default (rounded rectangle) -->
+<flux:action icon="pencil">Edit</flux:action>
+
+<!-- Circle (perfect circle for icon-only) -->
+<flux:action variant="circle" icon="play" />
+<flux:action variant="circle" icon="pause" size="lg" />
+<flux:action variant="circle" emoji="fire" color="red" />
+```
+
+**Avatar, Badge & Sort:**
+
+```blade
+<!-- Avatar support -->
+<flux:action avatar="/img/user.jpg">John Doe</flux:action>
+<flux:action avatar="/img/user.jpg" avatar-trailing>Profile</flux:action>
+
+<!-- Badge support -->
+<flux:action badge="3" icon="bell">Notifications</flux:action>
+<flux:action badge="NEW" color="emerald">Featured</flux:action>
+
+<!-- Sort order (e=emoji, i=icon, a=avatar, b=badge) -->
+<flux:action icon="star" emoji="fire" badge="HOT" sort="bie">Custom Order</flux:action>
 ```
 
 **Icon Placement Options:**
@@ -94,7 +133,7 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 ```blade
 <!-- Leading emoji -->
 <flux:action emoji="fire">Hot!</flux:action>
-<flux:action emoji="rocket" active>Launch</flux:action>
+<flux:action emoji="rocket" color="blue">Launch</flux:action>
 
 <!-- Trailing emoji -->
 <flux:action emoji-trailing="thumbs-up">Like</flux:action>
@@ -114,9 +153,12 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 **Props Reference:**
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `active` | bool | false | Blue active/selected state |
-| `warn` | bool | false | Amber warning variant |
-| `alert` | bool | false | Pulse animation effect |
+| `variant` | string | 'default' | Shape: 'default' (rounded rectangle) or 'circle' |
+| `color` | string | null | Standalone color: blue, emerald, amber, red, violet, indigo, sky, rose, orange, zinc |
+| `active` | bool | false | Active/selected state (blue if no color) |
+| `checked` | bool | false | Toggle/checkbox state (emerald if no color) |
+| `warn` | bool | false | Warning state (light amber if no color) |
+| `alert` | bool | false | Pulse animation effect (no color change) |
 | `icon` | string | null | Heroicon name for main icon |
 | `icon-color` | string | null | Custom icon color class |
 | `icon-place` | string | 'left' | Icon position: left, right, top, bottom, over, under |
@@ -125,6 +167,11 @@ A reusable button component with state variants, icons, emojis, and flexible pla
 | `alert-icon-trailing` | bool | false | Pulsing icon on trailing side |
 | `emoji` | string | null | Emoji slug for leading emoji |
 | `emoji-trailing` | string | null | Emoji slug for trailing emoji |
+| `avatar` | string | null | Image URL for circular avatar |
+| `avatar-trailing` | bool | false | Place avatar on trailing side |
+| `badge` | string | null | Badge text to display |
+| `badge-trailing` | bool | false | Place badge on trailing side |
+| `sort` | string | 'eiab' | Element order: e=emoji, i=icon, a=avatar, b=badge |
 | `disabled` | bool | false | Disabled state |
 | `size` | string | 'md' | Size: sm, md, lg |
 
@@ -149,15 +196,15 @@ $slides = [
 
 ```blade
 <flux:carousel variant="wizard" :loop="false" name="wizard-form">
-    <flux:carousel.steps>
-        <flux:carousel.step name="account" label="Account" />
-        <flux:carousel.step name="profile" label="Profile" />
-    </flux:carousel.steps>
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="account" label="Account" />
+        <flux:carousel.tab name="profile" label="Profile" />
+    </flux:carousel.tabs>
     
     <flux:carousel.panels>
-        <flux:carousel.step.item name="account">
+        <flux:carousel.panel name="account">
             <!-- Form content -->
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
     </flux:carousel.panels>
     
     <flux:carousel.controls wire:submit="submitWizard" />
@@ -204,12 +251,12 @@ class MyComponent extends Component
 ```blade
 <flux:carousel variant="wizard" :loop="false" name="parent-wizard">
     <flux:carousel.panels>
-        <flux:carousel.step.item name="step1">
+        <flux:carousel.panel name="step1">
             <!-- Nested carousel -->
             <flux:carousel variant="wizard" name="nested-wizard" parentCarousel="parent-wizard">
                 <!-- Nested content -->
             </flux:carousel>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
     </flux:carousel.panels>
 </flux:carousel>
 ```
@@ -229,12 +276,35 @@ Native color input with enhanced UI and preset support.
 />
 ```
 
+### Emoji Component
+
+Display emojis using slugs, classic emoticons, or raw characters - like `flux:icon` but for emoji.
+
+```blade
+<!-- From slugs -->
+<flux:emoji name="fire" />           {{-- 🔥 --}}
+<flux:emoji name="rocket" size="lg" />
+
+<!-- From classic emoticons -->
+<flux:emoji name=":)" />             {{-- 😊 --}}
+<flux:emoji name=":D" />             {{-- 😃 --}}
+<flux:emoji name="<3" />             {{-- ❤️ --}}
+
+<!-- Dynamic usage -->
+<flux:emoji :name="$selectedEmoji" size="xl" />
+```
+
 ### Emoji Select Component
 
 Composable emoji picker with category navigation and search.
 
 ```blade
 <flux:emoji-select wire:model.live="selectedEmoji" />
+
+<!-- Display the selected emoji -->
+@if($selectedEmoji)
+    <flux:emoji :name="$selectedEmoji" size="lg" />
+@endif
 
 <!-- With label and custom placeholder -->
 <flux:emoji-select 
@@ -250,16 +320,196 @@ Composable emoji picker with category navigation and search.
 </flux:input.group>
 ```
 
+### Timeline Component
+
+Interactive narrative timeline powered by TimelineJS3 (CDN-loaded). Supports eras, groups, media, and programmatic control.
+
+```blade
+{{-- Full data source --}}
+<flux:timeline :data="$timeline" height="500px" />
+
+{{-- Shorthand events array --}}
+<flux:timeline :events="$events" />
+
+{{-- With custom controls slot --}}
+<flux:timeline name="history" :data="$timeline">
+    <div class="flex gap-2 p-2">
+        <flux:button size="xs" icon="chevron-left" x-on:click="Flux.timeline('history').goToPrev()" />
+        <flux:button size="xs" icon="chevron-right" x-on:click="Flux.timeline('history').goToNext()" />
+    </div>
+</flux:timeline>
+
+{{-- Inside a carousel (lazy-loads) --}}
+<flux:carousel name="timelines" variant="directional">
+    <flux:carousel.panels>
+        <flux:carousel.panel name="history">
+            <flux:timeline name="company-history" :data="$history" />
+        </flux:carousel.panel>
+    </flux:carousel.panels>
+</flux:carousel>
+```
+
+**Programmatic Control:**
+
+```php
+FANCY::timeline('name')->goToNext();
+FANCY::timeline('name')->goToId('milestone-1');
+FANCY::timeline('name')->zoomIn();
+FANCY::timeline('name')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']]);
+FANCY::timeline('name')->updateData($newData);
+```
+
+**Data Format:**
+
+```php
+$data = [
+    'title' => ['text' => ['headline' => 'Title', 'text' => 'Subtitle']],
+    'eras' => [
+        ['start_date' => ['year' => 2020], 'end_date' => ['year' => 2023], 'text' => ['headline' => 'Phase 1']],
+    ],
+    'events' => [
+        [
+            'start_date' => ['year' => 2020, 'month' => 3],
+            'text' => ['headline' => 'Event', 'text' => 'Description'],
+            'group' => 'Category',
+        ],
+    ],
+];
+```
+
+**Props Reference:**
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | string | null | Instance name for external control |
+| `data` | array | null | Full TimelineJS3 JSON data source |
+| `events` | array | null | Shorthand: just the events array |
+| `height` | string | '600px' | Container height (CSS value) |
+| `start-at-slide` | int | 0 | Initial slide index |
+| `start-at-end` | bool | false | Start on last slide |
+| `timenav-position` | string | 'bottom' | Nav bar position: 'top' or 'bottom' |
+| `timenav-height` | int | null | Nav bar height in px |
+| `language` | string | 'en' | Language code |
+| `font` | string | null | Font pair name |
+| `hash-bookmark` | bool | false | URL hash navigation |
+| `dragging` | bool | true | Enable drag navigation |
+| `options` | array | [] | Passthrough for additional TL.Timeline options |
+| `lazy` | bool | true | Viewport-triggered init |
+
+### Fancy Table Component
+
+Advanced data table with composable architecture. Named `<flux:fancy-table>` to avoid conflicts with official Flux Pro table.
+
+```blade
+{{-- Data-driven mode --}}
+<flux:fancy-table :columns="$columns" :rows="$rows" />
+
+{{-- Composable mode with trays --}}
+<flux:fancy-table name="users">
+    <flux:fancy-table.columns>
+        <flux:fancy-table.column name="name" label="Name" sortable />
+        <flux:fancy-table.column name="email" label="Email" />
+        <flux:fancy-table.column name="actions" label="" />
+    </flux:fancy-table.columns>
+    <flux:fancy-table.body :rows="$users">
+        <flux:fancy-table.row :row="$row">
+            <flux:fancy-table.cell>{{ $row->name }}</flux:fancy-table.cell>
+            <flux:fancy-table.cell>{{ $row->email }}</flux:fancy-table.cell>
+            <flux:fancy-table.cell>
+                <flux:fancy-table.tray.trigger :row="$row" />
+            </flux:fancy-table.cell>
+            <flux:fancy-table.tray :row="$row">
+                {{-- Expandable content --}}
+            </flux:fancy-table.tray>
+        </flux:fancy-table.row>
+    </flux:fancy-table.body>
+    <flux:fancy-table.pagination />
+</flux:fancy-table>
+```
+
+**Programmatic Control (FANCY Facade):**
+
+```php
+FANCY::table('users')->nextPage();
+FANCY::table('users')->goToPage(3);
+FANCY::table('users')->sortBy('name', 'asc');
+FANCY::table('users')->toggleTray('row-1');
+FANCY::table('users')->selectAll();
+```
+
+**Features:**
+- Data-driven and composable slot-based modes
+- Sortable, resizable, and reorderable columns
+- Expandable row trays with nested content (including carousels)
+- Multi-select with `wire:model` binding
+- Search with deep path query support
+- Carousel-powered pagination
+
+### D3 Visualization Component
+
+Advanced data visualizations powered by D3.js. Complements Flux Pro's `flux:chart` with force graphs, hierarchies, and flow diagrams.
+
+```blade
+{{-- Force-directed graph --}}
+<flux:d3 type="force" :data="$networkData" :height="500" tooltip zoom />
+
+{{-- Tree hierarchy --}}
+<flux:d3 type="tree" :data="$orgChart" :height="400" />
+
+{{-- Treemap --}}
+<flux:d3 type="treemap" :data="$fileSystem" :height="300" tooltip />
+
+{{-- Sunburst --}}
+<flux:d3 type="sunburst" :data="$categories" :height="400" />
+```
+
+**Sparklines for Tables:**
+
+```blade
+<flux:d3.sparkline :data="[12, 15, 8, 22, 18, 25]" />
+<flux:d3.sparkline :data="$trend" type="area" color="emerald" />
+<flux:d3.sparkline :data="$values" type="bar" color="violet" />
+<flux:d3.sparkline :data="[1, -1, 1, 1, -1]" type="win-loss" />
+```
+
+**Data Formats:**
+
+```php
+// Force graph
+$networkData = [
+    'nodes' => [['id' => 'A', 'label' => 'Node A', 'group' => 1], ...],
+    'links' => [['source' => 'A', 'target' => 'B', 'value' => 1], ...],
+];
+
+// Hierarchy (tree, treemap, sunburst, pack)
+$hierarchy = [
+    'name' => 'root',
+    'children' => [
+        ['name' => 'child1', 'value' => 100],
+        ['name' => 'child2', 'children' => [...]],
+    ],
+];
+```
+
+**Programmatic Control:**
+
+```php
+FANCY::d3('network')->update($newData);
+FANCY::d3('network')->zoomToFit();
+FANCY::d3('tree')->toggleNode('node-5');
+FANCY::d3('graph')->highlight(['A', 'B']);
+```
+
 ### Key Conventions
 
-- **FANCY Facade**: Use `FANCY::` for emoji lookup, carousel control, and configuration access
+- **FANCY Facade**: Use `FANCY::` for emoji lookup (supports slugs AND emoticons like `:)`), carousel control, timeline control, table control, D3 control, and configuration access
 - **Component Namespace**: Components use the `flux:` namespace by default. If `FANCY_FLUX_PREFIX` is configured, components are also available with that prefix.
 - **Livewire Integration**: Components work seamlessly with wire:model and wire:submit
-- **Unique Names**: When using multiple carousels, always provide unique name props
+- **Unique Names**: When using multiple carousels or tables, always provide unique name props
 - **Nested Carousels**: Use parentCarousel prop to link nested carousels to their parent
-- **Programmatic Control**: Use `FANCY::carousel('name')` (preferred) or InteractsWithCarousel trait
+- **Programmatic Control**: Use `FANCY::carousel('name')`, `FANCY::timeline('name')`, `FANCY::table('name')` (preferred) or traits
 - **Emoji Slugs**: Use kebab-case slugs like 'fire', 'thumbs-up', 'red-heart' for emojis
 - **Prefix Configuration**: Use a custom prefix to avoid conflicts with official Flux components
+- **Table Naming**: Use `<flux:fancy-table>` (not `<flux:table>`) to avoid conflicts with Flux Pro
 
 ### Documentation
 

@@ -86,18 +86,18 @@ For full control over content, use the slot-based approach:
 ```blade
 <flux:carousel>
     <flux:carousel.panels>
-        <flux:carousel.step.item name="first" label="First Slide" />
-        <flux:carousel.step.item name="second" label="Second Slide" />
-        <flux:carousel.step.item name="third" label="Third Slide" />
+        <flux:carousel.panel name="first" label="First Slide" />
+        <flux:carousel.panel name="second" label="Second Slide" />
+        <flux:carousel.panel name="third" label="Third Slide" />
     </flux:carousel.panels>
     
     <flux:carousel.controls />
     
-    <flux:carousel.steps>
-        <flux:carousel.step name="first" />
-        <flux:carousel.step name="second" />
-        <flux:carousel.step name="third" />
-    </flux:carousel.steps>
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="first" />
+        <flux:carousel.tab name="second" />
+        <flux:carousel.tab name="third" />
+    </flux:carousel.tabs>
 </flux:carousel>
 ```
 
@@ -136,14 +136,14 @@ Use `wire:submit` to handle form submission when the user clicks "Finish":
 
 ```blade
 <flux:carousel variant="wizard" :loop="false" name="wizard-demo">
-    <flux:carousel.steps>
-        <flux:carousel.step name="account" label="Account" />
-        <flux:carousel.step name="profile" label="Profile" />
-        <flux:carousel.step name="review" label="Review" />
-    </flux:carousel.steps>
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="account" label="Account" />
+        <flux:carousel.tab name="profile" label="Profile" />
+        <flux:carousel.tab name="review" label="Review" />
+    </flux:carousel.tabs>
     
     <flux:carousel.panels>
-        <flux:carousel.step.item name="account">
+        <flux:carousel.panel name="account">
             <div class="p-6">
                 <flux:heading size="md">Create Your Account</flux:heading>
                 <flux:text class="mt-2 mb-4">Enter your email and password.</flux:text>
@@ -152,9 +152,9 @@ Use `wire:submit` to handle form submission when the user clicks "Finish":
                     <flux:input label="Password" type="password" wire:model.blur="password" />
                 </div>
             </div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
         
-        <flux:carousel.step.item name="profile">
+        <flux:carousel.panel name="profile">
             <div class="p-6">
                 <flux:heading size="md">Complete Your Profile</flux:heading>
                 <div class="space-y-4 max-w-sm">
@@ -162,14 +162,14 @@ Use `wire:submit` to handle form submission when the user clicks "Finish":
                     <flux:textarea label="Bio" wire:model.blur="bio" />
                 </div>
             </div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
         
-        <flux:carousel.step.item name="review">
+        <flux:carousel.panel name="review">
             <div class="p-6">
                 <flux:heading size="md">Review & Confirm</flux:heading>
                 {{-- Display collected data --}}
             </div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
     </flux:carousel.panels>
     
     {{-- wire:submit calls submitWizard() when Complete is clicked --}}
@@ -204,31 +204,31 @@ Create slides with custom HTML content:
 ```blade
 <flux:carousel :autoplay="false">
     <flux:carousel.panels>
-        <flux:carousel.step.item name="welcome">
+        <flux:carousel.panel name="welcome">
             <div class="flex items-center justify-center h-64 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
                 <div class="text-center">
                     <flux:heading size="lg" class="text-white!">Welcome</flux:heading>
                     <flux:text class="text-blue-100 mt-2">This is the first slide.</flux:text>
                 </div>
             </div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
         
-        <flux:carousel.step.item name="features">
+        <flux:carousel.panel name="features">
             <div class="flex items-center justify-center h-64 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white">
                 <div class="text-center">
                     <flux:heading size="lg" class="text-white!">Features</flux:heading>
                     <flux:text class="text-purple-100 mt-2">Discover amazing features.</flux:text>
                 </div>
             </div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
     </flux:carousel.panels>
     
     <flux:carousel.controls />
     
-    <flux:carousel.steps>
-        <flux:carousel.step name="welcome" />
-        <flux:carousel.step name="features" />
-    </flux:carousel.steps>
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="welcome" />
+        <flux:carousel.tab name="features" />
+    </flux:carousel.tabs>
 </flux:carousel>
 ```
 
@@ -280,23 +280,23 @@ class DynamicCarouselDemo extends Component
 <flux:carousel name="dynamic-carousel" :autoplay="false" :loop="true">
     <flux:carousel.panels>
         @foreach($slides as $slide)
-            <flux:carousel.step.item 
+            <flux:carousel.panel 
                 :name="$slide['name']" 
                 :label="$slide['label']" 
                 wire:key="slide-{{ $slide['name'] }}"
             >
                 {{-- Custom slide content --}}
-            </flux:carousel.step.item>
+            </flux:carousel.panel>
         @endforeach
     </flux:carousel.panels>
     
     <flux:carousel.controls position="overlay" />
     
-    <flux:carousel.steps>
+    <flux:carousel.tabs>
         @foreach($slides as $slide)
             <flux:carousel.step :name="$slide['name']" wire:key="step-{{ $slide['name'] }}" />
         @endforeach
-    </flux:carousel.steps>
+    </flux:carousel.tabs>
 </flux:carousel>
 
 <flux:button wire:click="appendSlide">Add Slide</flux:button>
@@ -384,37 +384,37 @@ Nested carousels are fully supported and operate independently. Each carousel ma
 
 ```blade
 <flux:carousel variant="wizard" :loop="false" name="parent-wizard">
-    <flux:carousel.steps>
-        <flux:carousel.step name="step1" label="Step 1" />
-        <flux:carousel.step name="step2" label="Step 2" />
-    </flux:carousel.steps>
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="step1" label="Step 1" />
+        <flux:carousel.tab name="step2" label="Step 2" />
+    </flux:carousel.tabs>
     
     <flux:carousel.panels>
-        <flux:carousel.step.item name="step1">
+        <flux:carousel.panel name="step1">
             <div class="p-6">Parent step 1 content</div>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
         
-        <flux:carousel.step.item name="step2">
+        <flux:carousel.panel name="step2">
             {{-- Nested wizard inside step 2 --}}
             <flux:carousel variant="wizard" :loop="false" name="nested-wizard" parentCarousel="parent-wizard">
-                <flux:carousel.steps>
-                    <flux:carousel.step name="nested1" label="Nested 1" />
-                    <flux:carousel.step name="nested2" label="Nested 2" />
-                </flux:carousel.steps>
+                <flux:carousel.tabs>
+                    <flux:carousel.tab name="nested1" label="Nested 1" />
+                    <flux:carousel.tab name="nested2" label="Nested 2" />
+                </flux:carousel.tabs>
                 
                 <flux:carousel.panels>
-                    <flux:carousel.step.item name="nested1">
+                    <flux:carousel.panel name="nested1">
                         <div class="p-4">First nested step content.</div>
-                    </flux:carousel.step.item>
+                    </flux:carousel.panel>
                     
-                    <flux:carousel.step.item name="nested2">
+                    <flux:carousel.panel name="nested2">
                         <div class="p-4">Second nested step content.</div>
-                    </flux:carousel.step.item>
+                    </flux:carousel.panel>
                 </flux:carousel.panels>
                 
                 <flux:carousel.controls />
             </flux:carousel>
-        </flux:carousel.step.item>
+        </flux:carousel.panel>
     </flux:carousel.panels>
     
     <flux:carousel.controls />
@@ -463,6 +463,60 @@ class WizardDemo extends Component
     }
 }
 ```
+
+## Control Styles
+
+The `flux:carousel.controls` component supports multiple display styles:
+
+### Dots (Default)
+
+Simple dot indicators showing current position. Clicking a dot navigates to that slide:
+
+```blade
+<flux:carousel.controls />
+{{-- or explicitly: --}}
+<flux:carousel.controls style="dots" />
+```
+
+### Arrows
+
+Prev/next arrow buttons with dot indicators:
+
+```blade
+<flux:carousel.controls style="arrows" />
+<flux:carousel.controls style="arrows" position="overlay" />
+```
+
+### Buttons
+
+Text-based Back/Next buttons (default for wizard variant):
+
+```blade
+<flux:carousel.controls style="buttons" />
+<flux:carousel.controls style="buttons" prevLabel="Go Back" nextLabel="Continue" />
+```
+
+### Minimal
+
+Just dots, no navigation buttons:
+
+```blade
+<flux:carousel.controls style="minimal" />
+```
+
+### Control Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `style` | string | auto | `'dots'`, `'arrows'`, `'buttons'`, `'minimal'` |
+| `position` | string | auto | `'bottom'`, `'overlay'`, `'sides'` |
+| `showDots` | bool | auto | Show/hide dot indicators |
+| `showPrev` | bool | `true` | Show previous button |
+| `showNext` | bool | `true` | Show next button |
+| `prevLabel` | string | 'Back' | Previous button text (buttons style) |
+| `nextLabel` | string | 'Next' | Next button text (buttons style) |
+| `finishLabel` | string | 'Finish' | Final step button text (wizard with wire:submit) |
+| `flush` | bool | `false` | Remove default margins (for custom containers) |
 
 ## Props Reference
 

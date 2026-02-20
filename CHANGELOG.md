@@ -5,6 +5,116 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.15] - 2026-02-18
+
+### Added
+- **Timeline Component**: Interactive narrative timelines powered by TimelineJS3
+  - CDN-loaded TimelineJS3 with CSS isolation for Tailwind compatibility
+  - Data-driven with full data source or shorthand events array
+  - Eras, groups, and media support
+  - Lazy loading for carousel-nested contexts via `x-intersect` + IntersectionObserver
+  - Dark mode with scoped CSS overrides matching Flux's zinc palette
+  - Slot for overlay controls (navigation, zoom buttons)
+  - `Flux.timeline('name')` JS helper for programmatic control
+  - `FANCY::timeline('name')` facade for Livewire programmatic control
+  - `TimelineManager` and `TimelineController` following the Manager/Controller pattern
+  - Props: name, data, events, height, startAtSlide, startAtEnd, timenavPosition, timenavHeight, language, font, hashBookmark, dragging, options, lazy
+  - Browser tests with Pest 4 (14 tests, 25 assertions)
+  - Demo with standalone, custom controls, carousel integration, and shorthand syntax
+
+- **Kitchen Sink Demo - Impact Timeline**: Added timeline component to the Environmental page showing organizational impact milestones across environmental, social, and economic initiatives with eras
+
+### Fixed
+- **JS Helper Loading**: Added `timeline.js` import to app.js bundle (was missing, causing `Flux.timeline is not a function` errors for custom controls)
+
+## [1.0.14] - 2026-01-24
+
+### Added
+- **D3 Component**: Advanced data visualizations powered by D3.js
+  - Force-directed graphs for network relationships
+  - Hierarchical layouts: tree, treemap, sunburst, pack
+  - Chord diagrams for matrix flow visualization
+  - Dark mode support with automatic color switching
+  - Tooltips, zoom/pan, and animation support
+  - `FANCY::d3('name')` facade for programmatic control
+  - `InteractsWithD3` trait for Livewire components
+
+- **D3 Sparkline Component**: Compact inline visualizations
+  - Types: line, area, bar, win-loss
+  - Tailwind color support
+  - Min/max markers and endpoint indicators
+  - Perfect for table cell visualizations
+
+- **D3 as Tray Terminator**: Embed D3 visualizations in table row trays
+  - Use `['_d3' => ['type' => 'force', 'data' => $data]]` in tray data
+
+- **D3 Configuration**: New config section in `fancy-flux.php`
+  - CDN vs local D3 loading
+  - Default color palettes for light/dark modes
+  - Animation duration settings
+
+### Changed
+- Updated `fancy-table` tray component to render D3 visualizations (previously placeholder)
+
+## [1.0.13] - 2026-01-24
+
+### Added
+- **Action Component - New Props**:
+  - `variant` prop: Shape variants - 'default' (rounded rectangle) or 'circle' (perfect circle for icon-only buttons)
+  - `color` prop: Standalone color theming independent of states - blue, emerald, amber, red, violet, indigo, sky, rose, orange, zinc
+  - `checked` prop: Toggle/checkbox behavioral state (emerald by default)
+  - `avatar` prop: Display circular avatar images
+  - `avatar-trailing` prop: Place avatar on trailing side
+  - `badge` prop: Display text badges (notification counts, labels)
+  - `badge-trailing` prop: Place badge on trailing side
+  - `sort` prop: Control element display order (e=emoji, i=icon, a=avatar, b=badge)
+
+- **Kitchen Sink Demo - RAMPAGE! Button**:
+  - Interactive demo showing all Action component features
+  - Circle play button that transforms into chaotic cycling button
+  - Demonstrates dynamic color, emoji, icon, badge, and sort changes
+
+### Changed
+- **Action Component - Color/State Separation**:
+  - `color` prop now takes precedence over all state-based colors
+  - States (`active`, `checked`, `warn`, `alert`) are now purely behavioral when `color` is set
+  - `alert` state only triggers pulse animation, never changes color
+
+### Notes
+- **No breaking changes**: All existing Action component usage continues to work
+- States without `color` prop use their default colors (active=blue, checked=emerald, warn=amber)
+
+## [0.5.0] - 2026-01-24 (+GlowUp1)
+
+### Added
+- **s13: Carousel Compatibility Audit**: Verified Carousel component's nesting capabilities
+  - ✅ 3-level deep nesting works correctly (Carousel in Carousel in Carousel)
+  - ✅ Event isolation: nested carousel controls don't affect parent carousels
+  - ✅ State management: carousels maintain independent state in dynamic Livewire containers
+  - ✅ Performance: 10+ carousels on one page with no JavaScript errors
+  - ✅ Collapsible containers: carousels work correctly inside `<details>` elements
+  - Added comprehensive browser tests in `tests/Feature/Browser/CarouselNestingTest.php`
+  - Added test demo page at `/fancy-flux/carousel-nesting-test`
+
+- **s10: Fancy Table Component**: Advanced data table with composable architecture
+  - **Data-driven mode**: Pass `:columns` and `:rows` arrays for quick table generation
+  - **Composable mode**: Full slot-based control with subcomponents
+  - **Column headers**: Action component props support (icon, active, warn, alert, sortable)
+  - **Column features**: Resizable (`resizable`) and reorderable (`reorderable`) props
+  - **Row trays**: Expandable detail areas with unified terminators (_table, _carousel, _d3, _view, string)
+  - **Multi-select**: Checkbox selection with `wire:model` binding
+  - **Search**: Deep path query support for nested data
+  - **Pagination**: Carousel-powered page navigation
+  - **Virtualization**: Performance optimization for large datasets with prefetch
+  - Added `TableManager` and `InteractsWithTable` trait for programmatic control
+  - Added `FANCY::table('name')` facade method
+  - Added comprehensive browser tests in `tests/Feature/Browser/TableTest.php`
+  - Added demo page at `/fancy-flux/table`
+
+### Notes
+- **Component name**: Use `<flux:fancy-table>` to avoid conflict with official Flux table
+- **D3 placeholder**: D3 visualization terminators show placeholders until s12 is complete
+
 ## [1.0.12] - 2026-01-24
 
 ### Added
@@ -117,6 +227,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Livewire 3.7+ / 4.0+
 - Flux UI 2.0+
 
+[1.0.15]: https://github.com/wishborn/fancy-flux/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/wishborn/fancy-flux/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/wishborn/fancy-flux/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/wishborn/fancy-flux/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/wishborn/fancy-flux/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/wishborn/fancy-flux/compare/v1.0.9...v1.0.10

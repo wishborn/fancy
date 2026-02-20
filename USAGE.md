@@ -8,6 +8,7 @@ Comprehensive usage instructions for all Fancy Flux components with tested examp
 - **[Carousel](docs/carousel.md)** - Flexible carousel/slideshow with multiple variants
 - **[Color Picker](docs/color-picker.md)** - Native color input with enhanced UI
 - **[Emoji Select](docs/emoji-select.md)** - Composable emoji picker with category navigation
+- **[Timeline](docs/timeline.md)** - Interactive narrative timelines powered by TimelineJS3
 
 ## FANCY Facade
 
@@ -24,6 +25,11 @@ FANCY::emoji()->search('heart'); // Search emojis
 // Carousel control
 FANCY::carousel('wizard')->next();
 FANCY::carousel('wizard')->goTo('step-3');
+
+// Timeline control
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']]);
 ```
 
 ## Quick Links
@@ -50,6 +56,14 @@ FANCY::carousel('wizard')->goTo('step-3');
 - [Size Variants](docs/emoji-select.md#size-variants)
 - [In Form Groups](docs/emoji-select.md#in-form-groups)
 
+### Timeline
+- [Basic Usage](docs/timeline.md#basic-usage)
+- [Data Format](docs/timeline.md#data-format)
+- [Custom Controls Slot](docs/timeline.md#with-custom-controls-slot)
+- [Inside a Carousel](docs/timeline.md#inside-a-carousel)
+- [Programmatic Control (JS)](docs/timeline.md#programmatic-control-javascript)
+- [Programmatic Control (Livewire)](docs/timeline.md#programmatic-control-livewire)
+
 ## Demos
 
 Ready-to-use examples are available in the [demos folder](demos/):
@@ -61,6 +75,7 @@ Ready-to-use examples are available in the [demos folder](demos/):
 - [Dynamic Carousel](demos/dynamic-carousel/)
 - [Color Picker Examples](demos/color-picker-examples/)
 - [Emoji Select Examples](demos/emoji-select-examples/)
+- [Timeline Examples](demos/timeline-examples/)
 
 ## Multiple Components on One Page
 

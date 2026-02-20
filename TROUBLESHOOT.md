@@ -16,6 +16,193 @@ Common issues and solutions for Fancy Flux, organized by version.
 
 ## Upgrade Notes
 
+### Upgrading to 1.0.14
+
+This version simplifies the Carousel component naming convention for better clarity and ARIA compliance.
+
+#### 🔴 BREAKING: Carousel Component Naming Changes
+
+The carousel sub-component names have been simplified:
+
+| Old Component | New Component | Reason |
+|---------------|---------------|--------|
+| `flux:carousel.step.item` | `flux:carousel.panel` | "Panel" is clearer than nested "step.item" |
+| `flux:carousel.step` | `flux:carousel.tab` | Matches ARIA semantics (role="tab") - these are clickable |
+| `flux:carousel.steps` | `flux:carousel.tabs` | Matches ARIA semantics (role="tablist") |
+
+**Migration Required:**
+
+```blade
+{{-- OLD (deprecated, but still works via alias) --}}
+<flux:carousel variant="wizard">
+    <flux:carousel.steps>
+        <flux:carousel.step name="intro" label="Introduction" />
+        <flux:carousel.step name="config" label="Configuration" />
+    </flux:carousel.steps>
+    
+    <flux:carousel.panels>
+        <flux:carousel.step.item name="intro">Welcome!</flux:carousel.step.item>
+        <flux:carousel.step.item name="config">Settings...</flux:carousel.step.item>
+    </flux:carousel.panels>
+    
+    <flux:carousel.controls />
+</flux:carousel>
+
+{{-- NEW (recommended) --}}
+<flux:carousel variant="wizard">
+    <flux:carousel.tabs>
+        <flux:carousel.tab name="intro" label="Introduction" />
+        <flux:carousel.tab name="config" label="Configuration" />
+    </flux:carousel.tabs>
+    
+    <flux:carousel.panels>
+        <flux:carousel.panel name="intro">Welcome!</flux:carousel.panel>
+        <flux:carousel.panel name="config">Settings...</flux:carousel.panel>
+    </flux:carousel.panels>
+    
+    <flux:carousel.controls />
+</flux:carousel>
+```
+
+#### 🟡 IMPORTANT: Backward Compatibility
+
+The old component names (`step.item`, `step`, `steps`, `indicator`, `indicators`) are **aliased** to the new names and continue to work. However, they are **deprecated** and will be removed in a future major version.
+
+**Find & Replace Commands:**
+
+```bash
+# For Unix/Mac/Git Bash
+grep -rl "carousel.step.item" resources/views | xargs sed -i 's/carousel\.step\.item/carousel.panel/g'
+grep -rl "carousel.steps" resources/views | xargs sed -i 's/carousel\.steps/carousel.tabs/g'
+grep -rl "carousel.step" resources/views | xargs sed -i 's/carousel\.step\b/carousel.tab/g'
+
+# For Windows PowerShell
+Get-ChildItem -Recurse -Filter "*.blade.php" | ForEach-Object {
+    (Get-Content $_.FullName) -replace 'carousel\.step\.item', 'carousel.panel' | Set-Content $_.FullName
+}
+```
+
+#### 🟢 TIP: Components That Stay The Same
+
+These carousel components are unchanged:
+- `flux:carousel` - Main container
+- `flux:carousel.panels` - Content container
+- `flux:carousel.controls` - Prev/Next buttons
+
+#### 🟢 TIP: Mental Model
+
+The new naming creates a clear mental model:
+- **tabs** = clickable navigation (where you want to go) - matches `role="tablist"` / `role="tab"`
+- **panels** = content containers (what you see) - matches `role="tabpanel"`
+- **controls** = prev/next buttons (sequential navigation)
+
+---
+
+### Upgrading to 1.0.13
+
+This version adds significant new features to the Action component with **no breaking changes**.
+
+#### New Action Component Features
+
+| Feature | Description |
+|---------|-------------|
+| `variant="circle"` | Perfect circle shape for icon-only buttons |
+| `color` prop | Standalone color theming (blue, emerald, red, violet, etc.) |
+| `checked` prop | Toggle/checkbox behavioral state |
+| `avatar` prop | Circular avatar image display |
+| `badge` prop | Text badge display (counts, labels) |
+| `sort` prop | Control element order (emoji, icon, avatar, badge) |
+
+#### 🟢 TIP: Color vs State Props
+
+The new `color` prop is **independent** of behavioral states:
+
+```blade
+{{-- Color alone (no state behavior) --}}
+<flux:action color="red">Delete</flux:action>
+
+{{-- State alone (uses default color) --}}
+<flux:action active>Active</flux:action>  {{-- Blue --}}
+<flux:action checked>Done</flux:action>   {{-- Emerald --}}
+
+{{-- Color + state (color wins, state adds behavior) --}}
+<flux:action color="violet" alert>Purple + Pulsing</flux:action>
+```
+
+#### 🟢 TIP: Circle Variant for Icon-Only Buttons
+
+```blade
+<flux:action variant="circle" icon="play" />
+<flux:action variant="circle" icon="pause" size="lg" color="blue" />
+<flux:action variant="circle" emoji="fire" />
+```
+
+#### 🟢 TIP: Avatar and Badge Support
+
+```blade
+<flux:action avatar="/img/user.jpg">John</flux:action>
+<flux:action badge="3" icon="bell">Notifications</flux:action>
+<flux:action avatar="/img/user.jpg" badge="Admin" sort="ab">John</flux:action>
+```
+
+#### No Breaking Changes
+
+All existing Action component code continues to work unchanged:
+- ✅ `active`, `warn`, `alert` props work as before
+- ✅ `icon`, `emoji` props work as before
+- ✅ All existing templates continue to work
+
+---
+
+### Upgrading to 0.5.0 (+GlowUp1)
+
+This version introduces Table, Timeline, and D3 components with extensive nesting support.
+
+#### 🟢 TIP: Carousel Nesting Verified
+
+The Carousel component has been audited and verified to support:
+- **3-level deep nesting**: Carousels within Carousels within Carousels
+- **Event isolation**: Nested controls don't affect parent carousels
+- **Dynamic containers**: Works in Livewire conditionals and `<details>` elements
+- **Performance**: 10+ carousels on one page with no issues
+
+This enables the new Table component's tray system which embeds carousels for nested content.
+
+#### 🟡 IMPORTANT: Fancy Table Component Name
+
+The new Table component is named `<flux:fancy-table>` to avoid conflicts with the official Flux Pro table component. If you're using the official Flux table, your code continues to work unchanged.
+
+```blade
+{{-- Official Flux table (unchanged) --}}
+<flux:table>...</flux:table>
+
+{{-- New Fancy Flux table --}}
+<flux:fancy-table :columns="$columns" :rows="$rows" />
+```
+
+#### 🟢 TIP: Using FANCY::table() for Programmatic Control
+
+```php
+use FancyFlux\Facades\FANCY;
+
+// Navigate pages
+FANCY::table('users')->nextPage();
+FANCY::table('users')->goToPage(3);
+
+// Selection
+FANCY::table('users')->selectAll();
+FANCY::table('users')->deselectAll();
+
+// Trays
+FANCY::table('users')->toggleTray('row-1');
+FANCY::table('users')->collapseAllTrays();
+
+// Sort
+FANCY::table('users')->sortBy('name', 'asc');
+```
+
+---
+
 ### Upgrading from 1.0.3 to 1.0.11
 
 This section covers all notable changes when upgrading from v1.0.3 to the latest version.

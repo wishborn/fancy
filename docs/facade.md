@@ -79,6 +79,54 @@ Emojis are organized into 8 categories:
 - `symbols` - Hearts, shapes, and symbols
 - `flags` - Country and other flags
 
+## Timeline Control
+
+Programmatically control timelines from Livewire components.
+
+### Navigation
+
+```php
+// In a Livewire component
+FANCY::timeline('my-timeline')->goToNext();
+FANCY::timeline('my-timeline')->goToPrev();
+FANCY::timeline('my-timeline')->goTo(3);        // Go to slide index
+FANCY::timeline('my-timeline')->goToId('event-1'); // Go to slide by unique_id
+FANCY::timeline('my-timeline')->goToStart();
+FANCY::timeline('my-timeline')->goToEnd();
+```
+
+### Zoom
+
+```php
+FANCY::timeline('my-timeline')->zoomIn();
+FANCY::timeline('my-timeline')->zoomOut();
+FANCY::timeline('my-timeline')->setZoom(5);
+```
+
+### Data Manipulation
+
+```php
+// Add a new event
+FANCY::timeline('my-timeline')->add([
+    'start_date' => ['year' => 2025, 'month' => 6],
+    'text' => ['headline' => 'New Event', 'text' => 'Description here'],
+]);
+
+// Remove an event by index or unique_id
+FANCY::timeline('my-timeline')->remove(2);
+FANCY::timeline('my-timeline')->removeId('event-1');
+
+// Replace entire data source
+FANCY::timeline('my-timeline')->updateData($newTimelineData);
+```
+
+### Display
+
+```php
+// Force layout recalculation (useful after container resize)
+FANCY::timeline('my-timeline')->refresh();
+```
+
 ## Carousel Control
 
 Programmatically control carousels from Livewire components.
@@ -122,7 +170,7 @@ FANCY::usesFluxNamespace(); // true
 
 // List available components
 FANCY::components();
-// ['action', 'carousel', 'color-picker', 'emoji-select']
+// ['action', 'carousel', 'color-picker', 'emoji-select', 'timeline']
 ```
 
 ## Using in Blade Components
