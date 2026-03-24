@@ -52,7 +52,6 @@ return [
         'color-picker',
         'emoji',
         'emoji-select',
-        'fancy-table',
         'timeline',
     ],
 

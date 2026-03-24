@@ -156,7 +156,7 @@ All existing Action component code continues to work unchanged:
 
 ### Upgrading to 0.5.0 (+GlowUp1)
 
-This version introduces Table, Timeline, and D3 components with extensive nesting support.
+This version introduces Timeline and D3 components with extensive nesting support.
 
 #### 🟢 TIP: Carousel Nesting Verified
 
@@ -165,41 +165,6 @@ The Carousel component has been audited and verified to support:
 - **Event isolation**: Nested controls don't affect parent carousels
 - **Dynamic containers**: Works in Livewire conditionals and `<details>` elements
 - **Performance**: 10+ carousels on one page with no issues
-
-This enables the new Table component's tray system which embeds carousels for nested content.
-
-#### 🟡 IMPORTANT: Fancy Table Component Name
-
-The new Table component is named `<flux:fancy-table>` to avoid conflicts with the official Flux Pro table component. If you're using the official Flux table, your code continues to work unchanged.
-
-```blade
-{{-- Official Flux table (unchanged) --}}
-<flux:table>...</flux:table>
-
-{{-- New Fancy Flux table --}}
-<flux:fancy-table :columns="$columns" :rows="$rows" />
-```
-
-#### 🟢 TIP: Using FANCY::table() for Programmatic Control
-
-```php
-use FancyFlux\Facades\FANCY;
-
-// Navigate pages
-FANCY::table('users')->nextPage();
-FANCY::table('users')->goToPage(3);
-
-// Selection
-FANCY::table('users')->selectAll();
-FANCY::table('users')->deselectAll();
-
-// Trays
-FANCY::table('users')->toggleTray('row-1');
-FANCY::table('users')->collapseAllTrays();
-
-// Sort
-FANCY::table('users')->sortBy('name', 'asc');
-```
 
 ---
 

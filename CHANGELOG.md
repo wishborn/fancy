@@ -45,16 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Min/max markers and endpoint indicators
   - Perfect for table cell visualizations
 
-- **D3 as Tray Terminator**: Embed D3 visualizations in table row trays
-  - Use `['_d3' => ['type' => 'force', 'data' => $data]]` in tray data
-
 - **D3 Configuration**: New config section in `fancy-flux.php`
   - CDN vs local D3 loading
   - Default color palettes for light/dark modes
   - Animation duration settings
-
-### Changed
-- Updated `fancy-table` tray component to render D3 visualizations (previously placeholder)
 
 ## [1.0.13] - 2026-01-24
 
@@ -96,23 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added comprehensive browser tests in `tests/Feature/Browser/CarouselNestingTest.php`
   - Added test demo page at `/fancy-flux/carousel-nesting-test`
 
-- **s10: Fancy Table Component**: Advanced data table with composable architecture
-  - **Data-driven mode**: Pass `:columns` and `:rows` arrays for quick table generation
-  - **Composable mode**: Full slot-based control with subcomponents
-  - **Column headers**: Action component props support (icon, active, warn, alert, sortable)
-  - **Column features**: Resizable (`resizable`) and reorderable (`reorderable`) props
-  - **Row trays**: Expandable detail areas with unified terminators (_table, _carousel, _d3, _view, string)
-  - **Multi-select**: Checkbox selection with `wire:model` binding
-  - **Search**: Deep path query support for nested data
-  - **Pagination**: Carousel-powered page navigation
-  - **Virtualization**: Performance optimization for large datasets with prefetch
-  - Added `TableManager` and `InteractsWithTable` trait for programmatic control
-  - Added `FANCY::table('name')` facade method
-  - Added comprehensive browser tests in `tests/Feature/Browser/TableTest.php`
-  - Added demo page at `/fancy-flux/table`
-
 ### Notes
-- **Component name**: Use `<flux:fancy-table>` to avoid conflict with official Flux table
 - **D3 placeholder**: D3 visualization terminators show placeholders until s12 is complete
 
 ## [1.0.12] - 2026-01-24

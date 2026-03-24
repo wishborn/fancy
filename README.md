@@ -119,44 +119,6 @@ composer require wishborn/fancy-pro
 
 ---
 
-### 📊 Fancy Table
-
-Advanced data table with composable architecture, expandable row trays, and Carousel-powered pagination.
-
-> **Note:** Named `<flux:fancy-table>` to avoid conflicts with official Flux Pro table component.
-
-**Quick Example:**
-```blade
-{{-- Data-driven mode --}}
-<flux:fancy-table :columns="$columns" :rows="$rows" />
-
-{{-- Composable mode --}}
-<flux:fancy-table>
-    <flux:fancy-table.columns>
-        <flux:fancy-table.column name="name" label="Name" sortable />
-        <flux:fancy-table.column name="email" label="Email" />
-    </flux:fancy-table.columns>
-    <flux:fancy-table.body :rows="$users">
-        <flux:fancy-table.row :row="$row">
-            <flux:fancy-table.cell>{{ $row->name }}</flux:fancy-table.cell>
-            <flux:fancy-table.cell>{{ $row->email }}</flux:fancy-table.cell>
-        </flux:fancy-table.row>
-    </flux:fancy-table.body>
-</flux:fancy-table>
-```
-
-**Features:**
-- Data-driven and composable slot-based modes
-- Sortable, resizable, and reorderable columns
-- Expandable row trays with nested content support
-- Multi-select with `wire:model` binding
-- Search with deep path query support
-- Carousel-powered pagination
-
-[📖 Full Documentation](docs/table.md)
-
----
-
 ## FANCY Facade
 
 The `FANCY` facade provides programmatic access to FancyFlux features:
@@ -177,11 +139,6 @@ FANCY::carousel('wizard')->goTo('step-3');
 FANCY::timeline('my-timeline')->goToNext();
 FANCY::timeline('my-timeline')->zoomIn();
 FANCY::timeline('my-timeline')->add([...]);
-
-// Table control
-FANCY::table('users')->nextPage();
-FANCY::table('users')->sortBy('name', 'asc');
-FANCY::table('users')->toggleTray('row-1');
 
 // Configuration
 FANCY::prefix();            // Custom prefix or null
@@ -258,7 +215,6 @@ FANCY_FLUX_ENABLE_DEMO_ROUTES=false
   - [Emoji](docs/emoji.md)
   - [Emoji Select](docs/emoji-select.md)
   - [Timeline](docs/timeline.md)
-  - [Fancy Table](docs/table.md)
   - [FANCY Facade](docs/facade.md)
 - **[Prefix Configuration](docs/prefix-configuration.md)** - Configure custom component prefixes to avoid naming conflicts
 - **[Troubleshooting](TROUBLESHOOT.md)** - Common issues and solutions by version

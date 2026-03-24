@@ -7,8 +7,6 @@ use FancyFlux\Managers\CarouselManager;
 use FancyFlux\Managers\CarouselController;
 use FancyFlux\Managers\DrawerManager;
 use FancyFlux\Managers\DrawerController;
-use FancyFlux\Managers\TableManager;
-use FancyFlux\Managers\TableController;
 use FancyFlux\Managers\TimelineManager;
 use FancyFlux\Managers\TimelineController;
 
@@ -24,7 +22,6 @@ use FancyFlux\Managers\TimelineController;
  * @example FANCY::emoji()->list()
  * @example FANCY::emoji('grinning-face') // shorthand for FANCY::emoji()->get('grinning-face')
  * @example FANCY::carousel('my-carousel')->next()
- * @example FANCY::table('users')->refresh()
  * @example FANCY::timeline('my-timeline')->goToNext()
  */
 class FancyFlux
@@ -35,8 +32,6 @@ class FancyFlux
 
     protected DrawerManager $drawerManager;
 
-    protected TableManager $tableManager;
-
     protected TimelineManager $timelineManager;
 
     public function __construct()
@@ -44,7 +39,6 @@ class FancyFlux
         $this->emojiRepository = new EmojiRepository();
         $this->carouselManager = new CarouselManager();
         $this->drawerManager = new DrawerManager();
-        $this->tableManager = new TableManager();
         $this->timelineManager = new TimelineManager();
     }
 
@@ -105,25 +99,6 @@ class FancyFlux
         }
 
         return $this->drawerManager->get($name);
-    }
-
-    /**
-     * Access the table manager or get a controller for a specific table.
-     *
-     * @param string|null $name Optional table name for direct access
-     * @return TableManager|TableController Manager or controller instance
-     *
-     * @example FANCY::table()->get('users') // Get table controller
-     * @example FANCY::table('users')->refresh() // Direct access and refresh
-     * @example FANCY::table('users')->selectAll() // Select all rows
-     */
-    public function table(?string $name = null): TableManager|TableController
-    {
-        if ($name === null) {
-            return $this->tableManager;
-        }
-
-        return $this->tableManager->get($name);
     }
 
     /**
