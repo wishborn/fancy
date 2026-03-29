@@ -148,6 +148,22 @@ $alpineData = "{
     " . ($attributes->whereStartsWith('wire:model')->first()
         ? "selected: \$wire.entangle('" . $attributes->whereStartsWith('wire:model')->first() . "')" . ($attributes->whereStartsWith('wire:model.live')->first() ? '.live' : '') . ","
         : "selected: " . Js::from($attributes->get('value') ?? '') . ",") . "
+    init() {
+        this.resolveIfSlug();
+        this.\$watch('selected', () => this.resolveIfSlug());
+    },
+    resolveIfSlug() {
+        if (!this.selected) return;
+        const val = this.selected.toLowerCase().replace(/-/g, ' ').trim();
+        for (const cat of Object.values(this.categories)) {
+            for (const emoji of cat.emojis) {
+                if (emoji.name.toLowerCase() === val) {
+                    if (this.selected !== emoji.char) this.selected = emoji.char;
+                    return;
+                }
+            }
+        }
+    },
     get filteredEmojis() {
         if (!this.search.trim()) {
             return this.categories[this.activeCategory]?.emojis || [];
