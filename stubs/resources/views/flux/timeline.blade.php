@@ -178,6 +178,7 @@ $isVertical = !$isHorizontal;
                 class="{{ $isAlternating
                     ? 'flex gap-x-4 md:grid md:grid-cols-[1fr_1.5rem_1fr] md:gap-x-6'
                     : 'flex gap-x-4' }}
+                    {{ $loop->last ? '' : 'pb-8' }}
                     {{ $animated ? 'transition duration-500 ease-out' : '' }}"
                 @if($animated)
                     x-intersect.once.threshold.20="shown[{{ $index }}] = true"
@@ -204,7 +205,7 @@ $isVertical = !$isHorizontal;
                 </div>
 
                 {{-- Content --}}
-                <div class="{{ $loop->last ? 'pb-0' : 'pb-8' }} {{ $isLargeDot ? 'pt-1' : '' }} {{ $isAlternating && $isEven ? 'md:col-start-1 md:row-start-1 md:text-right' : '' }} {{ $isAlternating && !$isEven ? 'md:col-start-3' : '' }}">
+                <div class="{{ $isLargeDot ? 'pt-1' : '' }} {{ $isAlternating && $isEven ? 'md:col-start-1 md:row-start-1 md:text-right' : '' }} {{ $isAlternating && !$isEven ? 'md:col-start-3' : '' }}">
                     @if (!empty($event['date']))
                         <time class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $event['date'] }}</time>
                     @endif
