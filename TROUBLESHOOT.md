@@ -16,6 +16,26 @@ Common issues and solutions for Fancy Flux, organized by version.
 
 ## Upgrade Notes
 
+### Upgrading to 1.0.20
+
+#### 🔴 BREAKING: Timeline Component Replaced
+
+The TimelineJS3-powered timeline has been replaced with a lightweight pure Tailwind + Alpine.js component. See [CHANGELOG.md](CHANGELOG.md#1020---2026-03-29) for the full migration guide.
+
+**What changed:**
+- Event data format is now simple arrays (no nested `start_date`/`text` objects)
+- `FANCY::timeline()` facade and `Flux.timeline()` JS helper removed
+- `TimelineManager`, `TimelineController`, `timeline.js` deleted
+- All old props removed (`data`, `height`, `startAtSlide`, `lazy`, `watermark`, etc.)
+
+**What to do:**
+1. Rewrite timeline event data to the new format
+2. Replace `<flux:timeline :data="...">` with `<flux:timeline :events="...">`
+3. Remove `import '...timeline.js'` from your JS bundle
+4. Remove any `FANCY::timeline()` or `Flux.timeline()` calls
+
+---
+
 ### Upgrading to 1.0.14
 
 This version simplifies the Carousel component naming convention for better clarity and ARIA compliance.

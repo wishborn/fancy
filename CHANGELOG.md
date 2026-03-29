@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.20] - 2026-03-29
+
+### Changed
+- **BREAKING: Timeline Component Rewritten** — Replaced TimelineJS3 (CDN) with a lightweight pure Tailwind CSS + Alpine.js component. No external dependencies.
+  - **Data structure changed**: Events are now simple arrays with `date`, `title`, `description`, `icon`, `emoji`, `color` keys (see [docs/timeline.md](docs/timeline.md))
+  - **`FANCY::timeline()` facade method removed** — The timeline no longer has programmatic control (zoom, navigate, etc.)
+  - **`Flux.timeline()` JS helper removed** — No JavaScript control API
+  - **`TimelineManager` and `TimelineController` classes deleted**
+  - **`resources/js/timeline.js` deleted** — Remove any `import` of this file from your `app.js`
+  - Old props (`data`, `height`, `startAtSlide`, `timenavPosition`, `lazy`, `watermark`, etc.) no longer exist
+
+### Added
+- **Timeline**: Three layout variants — `stacked` (default), `alternating`, `horizontal`
+- **Timeline**: Per-event `color` (17 Tailwind colors), `icon` (Heroicon), `emoji` accents
+- **Timeline**: Scroll-reveal animation via `x-intersect` (disable with `:animated="false"`)
+- **Timeline**: `heading` and `description` props on root component
+- **Timeline**: Mouse wheel captures horizontal scroll when hovering the horizontal variant
+- **Emoji Select**: Backward-compat slug resolution — old slug values (e.g., `"fire"`) auto-resolve to emoji characters on init
+
+### Fixed
+- **README**: Installation instructions moved to top, GitHub remote URL updated to `wishborn/fancy`
+- **README**: Removed D3 section (moved to fancy-pro)
+
+### Migration Guide
+
+**1. Update event data format:**
+
+```php
+// Before (TimelineJS3)
+$events = [
+    ['start_date' => ['year' => 2024, 'month' => 3], 'text' => ['headline' => 'Founded', 'text' => 'Description']],
+];
+
+// After
+$events = [
+    ['date' => 'March 2024', 'title' => 'Founded', 'description' => 'Description', 'color' => 'blue'],
+];
+```
+
+**2. Update component usage:**
+
+```blade
+{{-- Before --}}
+<flux:timeline :data="$timeline" height="500px" />
+
+{{-- After --}}
+<flux:timeline :events="$events" />
+<flux:timeline :events="$events" variant="horizontal" />
+<flux:timeline :events="$events" variant="alternating" />
+```
+
+**3. Remove JS imports** — Delete `import '...timeline.js'` from your `app.js`
+
+**4. Remove facade calls** — Replace `FANCY::timeline('name')->goToNext()` with your own logic
+
 ## [1.0.15] - 2026-02-18
 
 ### Added
