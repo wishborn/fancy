@@ -154,8 +154,14 @@ $isVertical = !$isHorizontal;
     @else
     {{-- ═══════════════════════════════════════════════════════
          VERTICAL VARIANTS (stacked + alternating)
+         Continuous background line behind all events.
          ═══════════════════════════════════════════════════════ --}}
-    <div>
+    <div class="relative">
+        {{-- Continuous connecting line --}}
+        @if (count($events) > 1)
+            <div class="absolute top-0 bottom-0 w-px bg-zinc-200 dark:bg-zinc-700 {{ $isAlternating ? 'left-4 md:left-1/2 md:-translate-x-px' : 'left-4' }}"></div>
+        @endif
+
         @foreach ($events as $index => $event)
             @php
                 $hasIcon = !empty($event['icon']);
@@ -175,18 +181,17 @@ $isVertical = !$isHorizontal;
             @endphp
 
             <div
-                class="{{ $isAlternating
+                class="relative {{ $isAlternating
                     ? 'flex gap-x-4 md:grid md:grid-cols-[1fr_1.5rem_1fr] md:gap-x-6'
                     : 'flex gap-x-4' }}
-                    {{ $loop->last ? '' : 'pb-8' }}
                     {{ $animated ? 'transition duration-500 ease-out' : '' }}"
                 @if($animated)
                     x-intersect.once.threshold.20="shown[{{ $index }}] = true"
                     :class="shown[{{ $index }}] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
                 @endif
             >
-                {{-- Dot + Line --}}
-                <div class="flex flex-col items-center shrink-0 {{ $isAlternating ? 'md:col-start-2 md:row-start-1' : '' }}">
+                {{-- Dot (sits on top of the background line) --}}
+                <div class="relative z-10 flex w-8 shrink-0 justify-center {{ $isAlternating ? 'md:col-start-2 md:row-start-1 md:w-auto md:justify-center' : '' }}">
                     @if ($hasEmoji)
                         <div class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
                             <span class="text-sm">{{ $event['emoji'] }}</span>
@@ -198,14 +203,10 @@ $isVertical = !$isHorizontal;
                     @else
                         <div class="w-3 h-3 rounded-full {{ $dotColor }} shrink-0 mt-1.5"></div>
                     @endif
-
-                    @if (!$loop->last)
-                        <div class="w-px flex-1 min-h-4 {{ $isLargeDot ? 'mt-1' : '' }} bg-zinc-200 dark:bg-zinc-700"></div>
-                    @endif
                 </div>
 
                 {{-- Content --}}
-                <div class="{{ $isLargeDot ? 'pt-1' : '' }} {{ $isAlternating && $isEven ? 'md:col-start-1 md:row-start-1 md:text-right' : '' }} {{ $isAlternating && !$isEven ? 'md:col-start-3' : '' }}">
+                <div class="min-w-0 flex-1 {{ $loop->last ? '' : 'pb-8' }} {{ $isLargeDot ? 'pt-1' : '' }} {{ $isAlternating && $isEven ? 'md:col-start-1 md:row-start-1 md:text-right' : '' }} {{ $isAlternating && !$isEven ? 'md:col-start-3' : '' }}">
                     @if (!empty($event['date']))
                         <time class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $event['date'] }}</time>
                     @endif
