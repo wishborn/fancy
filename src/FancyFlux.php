@@ -7,8 +7,6 @@ use FancyFlux\Managers\CarouselManager;
 use FancyFlux\Managers\CarouselController;
 use FancyFlux\Managers\DrawerManager;
 use FancyFlux\Managers\DrawerController;
-use FancyFlux\Managers\TimelineManager;
-use FancyFlux\Managers\TimelineController;
 
 /**
  * Main FancyFlux service class.
@@ -22,7 +20,6 @@ use FancyFlux\Managers\TimelineController;
  * @example FANCY::emoji()->list()
  * @example FANCY::emoji('grinning-face') // shorthand for FANCY::emoji()->get('grinning-face')
  * @example FANCY::carousel('my-carousel')->next()
- * @example FANCY::timeline('my-timeline')->goToNext()
  */
 class FancyFlux
 {
@@ -32,14 +29,11 @@ class FancyFlux
 
     protected DrawerManager $drawerManager;
 
-    protected TimelineManager $timelineManager;
-
     public function __construct()
     {
         $this->emojiRepository = new EmojiRepository();
         $this->carouselManager = new CarouselManager();
         $this->drawerManager = new DrawerManager();
-        $this->timelineManager = new TimelineManager();
     }
 
     /**
@@ -99,24 +93,6 @@ class FancyFlux
         }
 
         return $this->drawerManager->get($name);
-    }
-
-    /**
-     * Access the timeline manager or get a controller for a specific timeline.
-     *
-     * @param string|null $name Optional timeline name for direct access
-     * @return TimelineManager|TimelineController Manager or controller instance
-     *
-     * @example FANCY::timeline()->get('history') // Get timeline controller
-     * @example FANCY::timeline('history')->goToNext() // Direct access and navigate
-     */
-    public function timeline(?string $name = null): TimelineManager|TimelineController
-    {
-        if ($name === null) {
-            return $this->timelineManager;
-        }
-
-        return $this->timelineManager->get($name);
     }
 
     /**

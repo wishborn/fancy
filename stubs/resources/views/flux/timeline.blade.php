@@ -1,463 +1,222 @@
-@blaze
-
 {{--
-    Timeline Component: Interactive narrative timeline powered by TimelineJS3.
+    Timeline Component: A lightweight timeline for displaying events.
 
-    Renders a rich, interactive timeline with slide-based navigation and a time
-    navigation bar. Supports media (images, video, maps), grouping, eras, and
-    full programmatic control from both JavaScript and Livewire.
+    Pure Tailwind CSS + Alpine.js. No external dependencies.
 
-    Why: Brings Knight Lab's TimelineJS3 to the Flux ecosystem with lazy loading,
-    dark mode support, responsive sizing, and the standard Manager/Controller pattern.
+    Features:
+    - Stacked (default), alternating, or horizontal layout variants
+    - Per-event color, icon, or emoji accents
+    - Scroll-reveal animation
+    - Dark mode via Tailwind dark: classes
+    - Responsive: alternating collapses to stacked, horizontal scrolls on mobile
 
-    @see https://timeline.knightlab.com/ for TimelineJS3 documentation
+    Usage:
+        <flux:timeline :events="$events" />
+        <flux:timeline :events="$events" variant="alternating" />
+        <flux:timeline :events="$events" variant="horizontal" />
+        <flux:timeline :events="$events" heading="Our Journey" />
 
-    Usage (data-driven with full data source):
-
-        <flux:timeline :data="[
-            'title' => ['text' => ['headline' => 'Company History']],
-            'events' => [
-                ['start_date' => ['year' => 2020], 'text' => ['headline' => 'Founded']],
-                ['start_date' => ['year' => 2023], 'text' => ['headline' => 'Series A']],
-            ],
-        ]" />
-
-    Usage (shorthand with events array):
-
-        <flux:timeline :events="[
-            ['start_date' => ['year' => 2020], 'text' => ['headline' => 'Founded', 'text' => '<p>We started.</p>']],
-            ['start_date' => ['year' => 2023], 'text' => ['headline' => 'Series A'], 'media' => ['url' => '/img/funding.jpg']],
-        ]" />
-
-    Usage (with slot for overlay controls):
-
-        <flux:timeline name="history" :events="$events">
-            <div class="flex justify-end p-2">
-                <flux:button size="sm" x-on:click="Flux.timeline('history').goToStart()">Start</flux:button>
-            </div>
-        </flux:timeline>
-
-    Props:
-        - name: Instance name for external control (string, optional)
-        - data: Full TimelineJS3 JSON data source (array, optional)
-        - events: Shorthand events array - auto-wrapped into {events: [...]} (array, optional)
-        - height: Container height as CSS value (string, default: '600px')
-        - startAtSlide: Initial slide index (int, default: 0)
-        - startAtEnd: Start on last slide (bool, default: false)
-        - timenavPosition: Nav bar position - 'top' or 'bottom' (string, default: 'bottom')
-        - timenavHeight: Nav bar height in px (int, optional)
-        - language: Language code (string, default: 'en')
-        - font: Font pair name (string, optional)
-        - hashBookmark: Enable URL hash navigation (bool, default: false)
-        - dragging: Enable drag navigation (bool, default: true)
-        - options: Passthrough for additional TL.Timeline options (array, default: [])
-        - lazy: Enable viewport-triggered init (bool, default: true)
-        - watermark: Show TimelineJS attribution (bool, default: true)
-
-    Programmatic control (JS):
-        Flux.timeline('name').goToNext()
-        Flux.timeline('name').zoomIn()
-        Flux.timeline('name').add({ start_date: { year: 2025 }, text: { headline: 'New' } })
-
-    Programmatic control (Livewire):
-        FANCY::timeline('name')->goToNext()
-        FANCY::timeline('name')->zoomIn()
-        FANCY::timeline('name')->add(['start_date' => ['year' => 2025], 'text' => ['headline' => 'New']])
+    Event structure:
+        [
+            'date' => 'March 2024',
+            'title' => 'Series A',
+            'description' => 'Raised $10M in funding.',
+            'icon' => 'rocket-launch',
+            'emoji' => '🚀',
+            'color' => 'blue',
+        ]
 --}}
 
 @props([
-    'name' => null,             // Instance name for external control
-    'data' => null,             // Full TimelineJS3 JSON data source
-    'events' => null,           // Shorthand: just the events array
-    'height' => '600px',        // Container height (CSS value)
-    'startAtSlide' => 0,        // Initial slide index
-    'startAtEnd' => false,      // Start on last slide
-    'timenavPosition' => 'bottom', // 'top' or 'bottom'
-    'timenavHeight' => null,    // Nav bar height in px
-    'language' => 'en',         // Language code
-    'font' => null,             // Font pair name
-    'hashBookmark' => false,    // URL hash navigation
-    'dragging' => true,         // Enable drag navigation
-    'options' => [],            // Passthrough for additional TL.Timeline options
-    'lazy' => true,             // Viewport-triggered init
-    'watermark' => true,        // Show TimelineJS attribution
+    'events' => [],
+    'variant' => 'stacked',
+    'heading' => null,
+    'description' => null,
+    'animated' => true,
 ])
 
 @php
-$timelineId = $name ?? 'timeline-' . uniqid();
-
-// Normalize data: if events prop is provided but data is not, wrap into data source
-$dataSource = $data;
-if ($dataSource === null && $events !== null) {
-    $dataSource = ['events' => $events];
-}
-$dataSourceJson = json_encode($dataSource ?? ['events' => []]);
-
-// Build TimelineJS3 options from props
-$timelineOptions = array_filter([
-    'start_at_slide' => $startAtSlide,
-    'start_at_end' => $startAtEnd ?: null,
-    'timenav_position' => $timenavPosition,
-    'timenav_height' => $timenavHeight,
-    'language' => $language !== 'en' ? $language : null,
-    'font' => $font,
-    'hash_bookmark' => $hashBookmark ?: null,
-    'dragging' => $dragging ? null : false,
-    'trackResize' => false, // We handle resize ourselves
-], fn ($v) => $v !== null);
-
-// Merge with passthrough options (passthrough takes precedence)
-$mergedOptions = array_merge($timelineOptions, $options);
-$optionsJson = json_encode((object) $mergedOptions);
-
-$containerClasses = Flux::classes()
-    ->add('relative')
-    ->add(!$watermark ? 'hide-watermark' : '')
-    ;
+$isAlternating = $variant === 'alternating';
+$isHorizontal = $variant === 'horizontal';
+$isVertical = !$isHorizontal;
 @endphp
 
 <div
-    x-data="fancyTimeline({
-        id: '{{ $timelineId }}',
-        data: {{ $dataSourceJson }},
-        height: '{{ $height }}',
-        options: {{ $optionsJson }},
-        lazy: {{ $lazy ? 'true' : 'false' }},
-    })"
-    @if ($lazy)
-        x-intersect.once.threshold.0.1="initTimeline()"
-        x-init="checkVisibility()"
-    @else
-        x-init="$nextTick(() => initTimeline())"
+    {{ $attributes->class('') }}
+    @if($animated)
+        x-data="{ shown: Array({{ count($events) }}).fill(false) }"
     @endif
-    {{ $attributes->class($containerClasses) }}
-    data-flux-timeline="{{ $timelineId }}"
-    id="{{ $timelineId }}"
-    x-resize.document="handleResize()"
-    {{-- External control event listeners --}}
-    x-on:timeline-goto.window="if ($event.detail.id === '{{ $timelineId }}') handleGoTo($event.detail)"
-    x-on:timeline-zoom.window="if ($event.detail.id === '{{ $timelineId }}') handleZoom($event.detail)"
-    x-on:timeline-add.window="if ($event.detail.id === '{{ $timelineId }}') handleAdd($event.detail)"
-    x-on:timeline-remove.window="if ($event.detail.id === '{{ $timelineId }}') handleRemove($event.detail)"
-    x-on:timeline-refresh.window="if ($event.detail.id === '{{ $timelineId }}') handleRefresh()"
-    x-on:timeline-update-data.window="if ($event.detail.id === '{{ $timelineId }}') handleUpdateData($event.detail)"
-    {{-- Carousel integration --}}
-    x-on:carousel-navigated.window="if (!initialized) checkVisibility()"
+    data-flux-timeline
+    data-variant="{{ $variant }}"
 >
-    {{-- Loading overlay --}}
-    <div
-        class="absolute inset-0 flex items-center justify-center bg-white/95 dark:bg-zinc-800/95 backdrop-blur-md rounded-lg z-20 transition-opacity duration-200"
-        :class="{ 'opacity-100 pointer-events-auto': isLoading, 'opacity-0 pointer-events-none': !isLoading }"
-    >
-        <div class="flex flex-col items-center gap-3">
-            <div class="relative size-12">
-                <div class="absolute inset-0 border-4 border-zinc-200 dark:border-zinc-600 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-transparent border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin"></div>
-            </div>
-            <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200">Loading timeline...</p>
+    @if ($heading || $description)
+        <div class="mb-8">
+            @if ($heading)
+                <h2 class="text-xl font-semibold text-zinc-900 dark:text-white">{{ $heading }}</h2>
+            @endif
+            @if ($description)
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ $description }}</p>
+            @endif
         </div>
-    </div>
+    @endif
 
-    {{-- Slot for overlay content (controls, legends, etc.) --}}
     @if (!$slot->isEmpty())
-        <div class="relative z-10" data-flux-timeline-slot>
+        <div class="mb-6" data-flux-timeline-slot>
             {{ $slot }}
         </div>
     @endif
 
-    {{-- TimelineJS3 render container --}}
+    @if ($isHorizontal)
+    {{-- ═══════════════════════════════════════════════════════
+         HORIZONTAL VARIANT
+         Scrollable row: dots on a horizontal line, content below
+         ═══════════════════════════════════════════════════════ --}}
     <div
-        x-ref="timelineContainer"
-        class="tl-timeline-container"
-        :style="{ height: '{{ $height }}' }"
-        data-flux-timeline-container
-    ></div>
-</div>
+        class="overflow-x-auto pb-4 -mb-4"
+        style="scrollbar-width: thin; scrollbar-color: rgb(161 161 170) transparent;"
+        x-on:wheel.prevent="$el.scrollLeft += $event.deltaY"
+    >
+        <div class="flex items-start min-w-max">
+            @foreach ($events as $index => $event)
+                @php
+                    $hasIcon = !empty($event['icon']);
+                    $hasEmoji = !empty($event['emoji']);
+                    $isLargeDot = $hasIcon || $hasEmoji;
+                    $isLast = $loop->last;
 
-@once
-@push('scripts')
-{{-- TimelineJS3 CDN assets --}}
-<link rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css" />
-<script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+                    $dotColor = match($event['color'] ?? null) {
+                        'red' => 'bg-red-500', 'orange' => 'bg-orange-500', 'amber' => 'bg-amber-500',
+                        'yellow' => 'bg-yellow-500', 'lime' => 'bg-lime-500', 'green' => 'bg-green-500',
+                        'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'cyan' => 'bg-cyan-500',
+                        'sky' => 'bg-sky-500', 'blue' => 'bg-blue-500', 'indigo' => 'bg-indigo-500',
+                        'violet' => 'bg-violet-500', 'purple' => 'bg-purple-500', 'fuchsia' => 'bg-fuchsia-500',
+                        'pink' => 'bg-pink-500', 'rose' => 'bg-rose-500',
+                        default => 'bg-zinc-300 dark:bg-zinc-600',
+                    };
+                @endphp
 
-{{-- CSS isolation: prevent Tailwind preflight from breaking TimelineJS3 --}}
-<style>
-    .tl-timeline-container,
-    .tl-timeline-container *,
-    .tl-timeline-container *::before,
-    .tl-timeline-container *::after {
-        box-sizing: content-box;
-    }
-    .tl-timeline-container img {
-        max-width: none;
-    }
-    .tl-timeline-container h1,
-    .tl-timeline-container h2,
-    .tl-timeline-container h3,
-    .tl-timeline-container p {
-        margin: revert;
-    }
-    /* Dark mode overrides for TimelineJS3 */
-    .dark .tl-timeline-container .tl-timeline {
-        background-color: #18181b;
-    }
-    .dark .tl-timeline-container .tl-timemarker-content-container .tl-timemarker-content .tl-timemarker-text h2.tl-headline,
-    .dark .tl-timeline-container .tl-headline,
-    .dark .tl-timeline-container .tl-headline-date {
-        color: #e4e4e7;
-    }
-    .dark .tl-timeline-container .tl-text p,
-    .dark .tl-timeline-container .tl-text {
-        color: #a1a1aa;
-    }
-    .dark .tl-timeline-container .tl-timenav {
-        background-color: #27272a;
-    }
-    .dark .tl-timeline-container .tl-timenav-slider {
-        background-color: #27272a;
-    }
-    .dark .tl-timeline-container .tl-timeaxis {
-        background-color: #27272a;
-    }
-    .dark .tl-timeline-container .tl-timeaxis-background {
-        background-color: #27272a;
-    }
-    .dark .tl-timeline-container .tl-timeaxis-tick:before {
-        background-color: #52525b;
-    }
-    .dark .tl-timeline-container .tl-timeaxis-major .tl-timeaxis-tick-text span,
-    .dark .tl-timeline-container .tl-timeaxis-minor .tl-timeaxis-tick-text span {
-        color: #a1a1aa;
-    }
-    .dark .tl-timeline-container .tl-timemarker .tl-timemarker-content-container {
-        background-color: #3f3f46;
-        border-color: #52525b;
-    }
-    .dark .tl-timeline-container .tl-timemarker .tl-timemarker-timespan {
-        background-color: #52525b;
-    }
-    .dark .tl-timeline-container .tl-timemarker .tl-timemarker-line-left,
-    .dark .tl-timeline-container .tl-timemarker .tl-timemarker-line-right {
-        border-color: #52525b;
-    }
-    .dark .tl-timeline-container .tl-slidenav-next .tl-slidenav-title,
-    .dark .tl-timeline-container .tl-slidenav-previous .tl-slidenav-title,
-    .dark .tl-timeline-container .tl-slidenav-next .tl-slidenav-description,
-    .dark .tl-timeline-container .tl-slidenav-previous .tl-slidenav-description {
-        color: #a1a1aa;
-    }
-    .dark .tl-timeline-container .tl-slide-content {
-        background-color: #18181b;
-    }
-    .dark .tl-timeline-container .tl-menubar {
-        background-color: #27272a;
-    }
-    .dark .tl-timeline-container .tl-menubar .tl-menubar-button {
-        color: #a1a1aa;
-    }
-    /* Hide TimelineJS attribution watermark when opted out */
-    .hide-watermark .tl-attribution {
-        display: none !important;
-    }
-</style>
+                <div
+                    class="flex flex-col items-center {{ $isLast ? '' : 'mr-0' }}
+                        {{ $animated ? 'transition duration-500 ease-out' : '' }}"
+                    style="{{ $isLast ? '' : 'min-width: 10rem;' }}"
+                    @if($animated)
+                        x-intersect.once.threshold.20="shown[{{ $index }}] = true"
+                        :class="shown[{{ $index }}] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
+                    @endif
+                >
+                    {{-- Dot + Horizontal Line (fixed height so lines always align) --}}
+                    <div class="flex items-center w-full h-8">
+                        {{-- Left line segment --}}
+                        @if (!$loop->first)
+                            <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-700"></div>
+                        @else
+                            <div class="flex-1"></div>
+                        @endif
 
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('fancyTimeline', (config) => ({
-        // Configuration
-        id: config.id,
-        data: config.data,
-        height: config.height,
-        options: config.options,
-        lazy: config.lazy,
+                        {{-- Dot --}}
+                        @if ($hasEmoji)
+                            <div class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
+                                <span class="text-sm">{{ $event['emoji'] }}</span>
+                            </div>
+                        @elseif ($hasIcon)
+                            <div class="w-8 h-8 rounded-full {{ $dotColor }} flex items-center justify-center shrink-0">
+                                <flux:icon :name="$event['icon']" variant="micro" class="size-4 text-white" />
+                            </div>
+                        @else
+                            <div class="w-3 h-3 rounded-full {{ $dotColor }} shrink-0"></div>
+                        @endif
 
-        // State
-        timeline: null,
-        isLoading: true,
-        initialized: false,
+                        {{-- Right line segment --}}
+                        @if (!$isLast)
+                            <div class="flex-1 h-px bg-zinc-200 dark:bg-zinc-700"></div>
+                        @else
+                            <div class="flex-1"></div>
+                        @endif
+                    </div>
 
-        checkVisibility() {
-            if (this.initialized) return;
+                    {{-- Content (below the line) --}}
+                    <div class="mt-3 text-center px-2 max-w-40">
+                        @if (!empty($event['date']))
+                            <time class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $event['date'] }}</time>
+                        @endif
+                        @if (!empty($event['title']))
+                            <h3 class="font-semibold text-sm text-zinc-900 dark:text-white">{{ $event['title'] }}</h3>
+                        @endif
+                        @if (!empty($event['description']))
+                            <div class="mt-1 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{!! $event['description'] !!}</div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
 
-            // Check if inside a carousel panel
-            const parentPanel = this.$el.closest('[data-flux-carousel-step-item]');
-            const panelIsActive = !parentPanel ||
-                                window.getComputedStyle(parentPanel).display !== 'none' &&
-                                !parentPanel.hasAttribute('aria-hidden') ||
-                                parentPanel.getAttribute('aria-hidden') === 'false';
+    @else
+    {{-- ═══════════════════════════════════════════════════════
+         VERTICAL VARIANTS (stacked + alternating)
+         ═══════════════════════════════════════════════════════ --}}
+    <div>
+        @foreach ($events as $index => $event)
+            @php
+                $hasIcon = !empty($event['icon']);
+                $hasEmoji = !empty($event['emoji']);
+                $isLargeDot = $hasIcon || $hasEmoji;
+                $isEven = $index % 2 === 0;
 
-            const rect = this.$el.getBoundingClientRect();
-            const isVisible = rect.width > 0 && rect.height > 0 &&
-                             window.getComputedStyle(this.$el).display !== 'none';
-
-            if (panelIsActive && isVisible && !this.initialized) {
-                setTimeout(() => {
-                    if (!this.initialized) {
-                        this.initTimeline();
-                    }
-                }, 200);
-                return;
-            }
-
-            // Fallback: IntersectionObserver
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && entry.intersectionRatio > 0 && !this.initialized) {
-                        observer.disconnect();
-                        setTimeout(() => {
-                            if (!this.initialized) {
-                                this.initTimeline();
-                            }
-                        }, 150);
-                    }
-                });
-            }, {
-                threshold: 0.1,
-                rootMargin: '50px'
-            });
-
-            observer.observe(this.$el);
-        },
-
-        initTimeline() {
-            if (this.initialized) return;
-            this.initialized = true;
-            this.isLoading = true;
-
-            this.$nextTick(() => {
-                // Wait for TL global to be available (CDN may still be loading)
-                const waitForTL = (attempts = 0) => {
-                    if (typeof TL !== 'undefined' && TL.Timeline) {
-                        this.createTimeline();
-                        return;
-                    }
-                    if (attempts < 50) {
-                        setTimeout(() => waitForTL(attempts + 1), 100);
-                    } else {
-                        console.error('TimelineJS3 failed to load from CDN');
-                        this.isLoading = false;
-                    }
+                $dotColor = match($event['color'] ?? null) {
+                    'red' => 'bg-red-500', 'orange' => 'bg-orange-500', 'amber' => 'bg-amber-500',
+                    'yellow' => 'bg-yellow-500', 'lime' => 'bg-lime-500', 'green' => 'bg-green-500',
+                    'emerald' => 'bg-emerald-500', 'teal' => 'bg-teal-500', 'cyan' => 'bg-cyan-500',
+                    'sky' => 'bg-sky-500', 'blue' => 'bg-blue-500', 'indigo' => 'bg-indigo-500',
+                    'violet' => 'bg-violet-500', 'purple' => 'bg-purple-500', 'fuchsia' => 'bg-fuchsia-500',
+                    'pink' => 'bg-pink-500', 'rose' => 'bg-rose-500',
+                    default => 'bg-zinc-300 dark:bg-zinc-600',
                 };
-                waitForTL();
-            });
-        },
+            @endphp
 
-        createTimeline() {
-            const container = this.$refs.timelineContainer;
-            if (!container) return;
+            <div
+                class="{{ $isAlternating
+                    ? 'flex gap-x-4 md:grid md:grid-cols-[1fr_1.5rem_1fr] md:gap-x-6'
+                    : 'flex gap-x-4' }}
+                    {{ $animated ? 'transition duration-500 ease-out' : '' }}"
+                @if($animated)
+                    x-intersect.once.threshold.20="shown[{{ $index }}] = true"
+                    :class="shown[{{ $index }}] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'"
+                @endif
+            >
+                {{-- Dot + Line --}}
+                <div class="flex flex-col items-center shrink-0 {{ $isAlternating ? 'md:col-start-2 md:row-start-1' : '' }}">
+                    @if ($hasEmoji)
+                        <div class="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0">
+                            <span class="text-sm">{{ $event['emoji'] }}</span>
+                        </div>
+                    @elseif ($hasIcon)
+                        <div class="w-8 h-8 rounded-full {{ $dotColor }} flex items-center justify-center shrink-0">
+                            <flux:icon :name="$event['icon']" variant="micro" class="size-4 text-white" />
+                        </div>
+                    @else
+                        <div class="w-3 h-3 rounded-full {{ $dotColor }} shrink-0 mt-1.5"></div>
+                    @endif
 
-            // Give container a unique ID for TimelineJS3 (it requires an ID string)
-            const containerId = this.id + '-container';
-            container.id = containerId;
+                    @if (!$loop->last)
+                        <div class="w-px flex-1 min-h-4 {{ $isLargeDot ? 'mt-1' : '' }} bg-zinc-200 dark:bg-zinc-700"></div>
+                    @endif
+                </div>
 
-            const startTime = Date.now();
-            const minLoadingTime = 400;
-
-            try {
-                this.timeline = new TL.Timeline(containerId, this.data, this.options);
-
-                // Listen for the loaded event to hide loading overlay
-                this.timeline.on('loaded', () => {
-                    const elapsed = Date.now() - startTime;
-                    const remaining = Math.max(0, minLoadingTime - elapsed);
-                    setTimeout(() => {
-                        this.isLoading = false;
-                    }, remaining);
-                });
-
-                // Fallback timeout in case loaded event never fires
-                setTimeout(() => {
-                    if (this.isLoading) {
-                        this.isLoading = false;
-                    }
-                }, 5000);
-            } catch (e) {
-                console.error('TimelineJS3 initialization error:', e);
-                this.isLoading = false;
-            }
-        },
-
-        // ── Resize ──────────────────────────────────────────────
-
-        handleResize() {
-            if (this.timeline) {
-                this.timeline.updateDisplay();
-            }
-        },
-
-        // ── External Control Handlers ───────────────────────────
-
-        handleGoTo(detail) {
-            if (!this.timeline) return;
-
-            if (detail.position === 'start') {
-                this.timeline.goToStart();
-            } else if (detail.position === 'end') {
-                this.timeline.goToEnd();
-            } else if (detail.position === 'prev') {
-                this.timeline.goToPrev();
-            } else if (detail.position === 'next') {
-                this.timeline.goToNext();
-            } else if (detail.uniqueId) {
-                this.timeline.goToId(detail.uniqueId);
-            } else if (detail.index !== undefined) {
-                this.timeline.goTo(detail.index);
-            }
-        },
-
-        handleZoom(detail) {
-            if (!this.timeline) return;
-
-            if (detail.direction === 'in') {
-                this.timeline.zoomIn();
-            } else if (detail.direction === 'out') {
-                this.timeline.zoomOut();
-            } else if (detail.level !== undefined) {
-                this.timeline.setZoom(detail.level);
-            }
-        },
-
-        handleAdd(detail) {
-            if (!this.timeline || !detail.event) return;
-            this.timeline.add(detail.event);
-        },
-
-        handleRemove(detail) {
-            if (!this.timeline) return;
-
-            if (detail.uniqueId) {
-                this.timeline.removeId(detail.uniqueId);
-            } else if (detail.index !== undefined) {
-                this.timeline.remove(detail.index);
-            }
-        },
-
-        handleRefresh() {
-            if (!this.timeline) return;
-            this.timeline.updateDisplay();
-        },
-
-        handleUpdateData(detail) {
-            if (!detail.data) return;
-
-            // Destroy and recreate with new data
-            this.data = detail.data;
-            const container = this.$refs.timelineContainer;
-            if (container) {
-                container.innerHTML = '';
-            }
-            this.timeline = null;
-            this.createTimeline();
-        },
-
-        // Cleanup on Alpine component destroy
-        destroy() {
-            if (this.timeline) {
-                this.timeline = null;
-            }
-        },
-    }));
-});
-</script>
-@endpush
-@endonce
+                {{-- Content --}}
+                <div class="{{ $loop->last ? 'pb-0' : 'pb-8' }} {{ $isLargeDot ? 'pt-1' : '' }} {{ $isAlternating && $isEven ? 'md:col-start-1 md:row-start-1 md:text-right' : '' }} {{ $isAlternating && !$isEven ? 'md:col-start-3' : '' }}">
+                    @if (!empty($event['date']))
+                        <time class="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $event['date'] }}</time>
+                    @endif
+                    @if (!empty($event['title']))
+                        <h3 class="font-semibold text-zinc-900 dark:text-white">{{ $event['title'] }}</h3>
+                    @endif
+                    @if (!empty($event['description']))
+                        <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{!! $event['description'] !!}</div>
+                    @endif
+                </div>
+            </div>
+        @endforeach
+    </div>
+    @endif
+</div>

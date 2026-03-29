@@ -1,5 +1,5 @@
 [![Guided by Tynn](https://img.shields.io/endpoint?url=https%3A%2F%2Ftynn.ai%2Fu%2Fwishborn%2Fflux-dev%2Fbadge.json)](https://tynn.ai/u/wishborn/flux-dev)
-[![Latest Version](https://img.shields.io/github/v/release/wishborn/fancy-flux?style=flat-square)](https://github.com/wishborn/fancy-flux/releases)
+[![Latest Version](https://img.shields.io/github/v/release/wishborn/fancy?style=flat-square)](https://github.com/wishborn/fancy/releases)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 
 # Fancy Flux
@@ -7,147 +7,6 @@
 Custom Flux UI components for Laravel Livewire applications.
 
 ![Fancy Flux Components](docs/screenshot.png)
-
-## Components
-
-### ⚡ Action
-
-A reusable button component with standalone colors, behavioral states, shape variants, avatars, badges, icons, emojis, and flexible placement.
-
-**Quick Example:**
-```blade
-<flux:action icon="pencil">Edit</flux:action>
-<flux:action color="blue" emoji="fire">Hot!</flux:action>
-<flux:action color="red" badge="3">Alerts</flux:action>
-<flux:action variant="circle" icon="play" />
-<flux:action avatar="/img/user.jpg" badge="Admin">John</flux:action>
-```
-
-[📖 Full Documentation](docs/action.md) | [💡 Examples](demos/action-examples/)
-
----
-
-### 🎠 Carousel
-
-A flexible carousel/slideshow component with multiple variants:
-
-- **Directional** - Navigation with prev/next arrows, supports autoplay
-- **Wizard** - Step-based navigation with numbered indicators, perfect for multi-step forms
-- **Thumbnail** - Image-based navigation with preview thumbnails
-
-**Quick Example:**
-```blade
-<flux:carousel :data="$slides" autoplay />
-```
-
-[📖 Full Documentation](docs/carousel.md) | [💡 Examples](demos/basic-carousel/)
-
----
-
-### 🎨 Color Picker
-
-A native color input component with enhanced UI, swatch preview, and preset support.
-
-**Quick Example:**
-```blade
-<flux:color-picker label="Primary Color" wire:model="primaryColor" />
-```
-
-[📖 Full Documentation](docs/color-picker.md) | [💡 Examples](demos/color-picker-examples/)
-
----
-
-### 😀 Emoji
-
-Display emojis using slugs, classic emoticons, or raw characters - like `flux:icon` but for emoji.
-
-**Quick Example:**
-```blade
-<flux:emoji name="fire" />           {{-- 🔥 from slug --}}
-<flux:emoji name=":)" />             {{-- 😊 from emoticon --}}
-<flux:emoji name="rocket" size="lg" />
-```
-
-[📖 Full Documentation](docs/emoji.md)
-
----
-
-### 🎯 Emoji Select
-
-A composable emoji picker component with category navigation, search, and customizable styling.
-
-**Quick Example:**
-```blade
-<flux:emoji-select wire:model.live="selectedEmoji" />
-```
-
-[📖 Full Documentation](docs/emoji-select.md) | [💡 Examples](demos/emoji-select-examples/)
-
----
-
-### 📅 Timeline
-
-Interactive narrative timelines powered by [TimelineJS3](https://timeline.knightlab.com/). Supports eras, groups, media, lazy loading in carousels, and dark mode.
-
-**Quick Example:**
-```blade
-<flux:timeline :data="$timeline" height="500px" />
-
-{{-- Shorthand with just events --}}
-<flux:timeline :events="$events" />
-
-{{-- Named with custom controls --}}
-<flux:timeline name="history" :data="$timeline">
-    <div class="flex gap-2 p-2">
-        <flux:button size="xs" icon="chevron-left" x-on:click="Flux.timeline('history').goToPrev()" />
-        <flux:button size="xs" icon="chevron-right" x-on:click="Flux.timeline('history').goToNext()" />
-    </div>
-</flux:timeline>
-```
-
-[📖 Full Documentation](docs/timeline.md) | [💡 Examples](demos/timeline-examples/)
-
----
-
-### 📈 D3 Visualizations (Moved to Fancy Pro)
-
-> **Note:** D3 visualizations have been moved to the [wishborn/fancy-pro](https://github.com/wishborn/fancy-pro) package for better separation of premium features.
-
-```bash
-composer require wishborn/fancy-pro
-```
-
----
-
-## FANCY Facade
-
-The `FANCY` facade provides programmatic access to FancyFlux features:
-
-```php
-// Emoji lookup (787+ emojis with slug-based access)
-FANCY::emoji('fire');           // Returns: 🔥
-FANCY::emoji(':)');             // Returns: 😊 (emoticon support!)
-FANCY::emoji()->list();         // Get all emoji slugs
-FANCY::emoji()->search('heart'); // Search emojis
-FANCY::emoji()->emoticons();    // Get all supported emoticons
-
-// Carousel control
-FANCY::carousel('wizard')->next();
-FANCY::carousel('wizard')->goTo('step-3');
-
-// Timeline control
-FANCY::timeline('my-timeline')->goToNext();
-FANCY::timeline('my-timeline')->zoomIn();
-FANCY::timeline('my-timeline')->add([...]);
-
-// Configuration
-FANCY::prefix();            // Custom prefix or null
-FANCY::components();        // List of components
-```
-
-[📖 Full Documentation](docs/facade.md)
-
----
 
 ## Installation
 
@@ -205,6 +64,129 @@ FANCY_FLUX_ENABLE_DEMO_ROUTES=false
 - **Multiple packages:** If you use multiple custom Flux component packages, prefixes prevent conflicts
 - **Clear ownership:** Makes it clear which components are from Fancy Flux vs official Flux
 
+## Requirements
+
+- PHP 8.2+
+- Laravel 10+ / 11+ / 12+
+- Livewire 3.7+ / 4.0+
+- Flux UI 2.0+
+
+## Components
+
+### ⚡ Action
+
+A reusable button component with standalone colors, behavioral states, shape variants, avatars, badges, icons, emojis, and flexible placement.
+
+**Quick Example:**
+```blade
+<flux:action icon="pencil">Edit</flux:action>
+<flux:action color="blue" emoji="fire">Hot!</flux:action>
+<flux:action color="red" badge="3">Alerts</flux:action>
+<flux:action variant="circle" icon="play" />
+<flux:action avatar="/img/user.jpg" badge="Admin">John</flux:action>
+```
+
+[Full Documentation](docs/action.md) | [Examples](demos/action-examples/)
+
+---
+
+### 🎠 Carousel
+
+A flexible carousel/slideshow component with multiple variants:
+
+- **Directional** - Navigation with prev/next arrows, supports autoplay
+- **Wizard** - Step-based navigation with numbered indicators, perfect for multi-step forms
+- **Thumbnail** - Image-based navigation with preview thumbnails
+
+**Quick Example:**
+```blade
+<flux:carousel :data="$slides" autoplay />
+```
+
+[Full Documentation](docs/carousel.md) | [Examples](demos/basic-carousel/)
+
+---
+
+### 🎨 Color Picker
+
+A native color input component with enhanced UI, swatch preview, and preset support.
+
+**Quick Example:**
+```blade
+<flux:color-picker label="Primary Color" wire:model="primaryColor" />
+```
+
+[Full Documentation](docs/color-picker.md) | [Examples](demos/color-picker-examples/)
+
+---
+
+### 😀 Emoji
+
+Display emojis using slugs, classic emoticons, or raw characters - like `flux:icon` but for emoji.
+
+**Quick Example:**
+```blade
+<flux:emoji name="fire" />           {{-- 🔥 from slug --}}
+<flux:emoji name=":)" />             {{-- 😊 from emoticon --}}
+<flux:emoji name="rocket" size="lg" />
+```
+
+[Full Documentation](docs/emoji.md)
+
+---
+
+### 🎯 Emoji Select
+
+A composable emoji picker component with category navigation, search, and customizable styling. Saves the emoji character directly (e.g., `🔥`), with backward compatibility for slug values.
+
+**Quick Example:**
+```blade
+<flux:emoji-select wire:model.live="selectedEmoji" />
+```
+
+[Full Documentation](docs/emoji-select.md) | [Examples](demos/emoji-select-examples/)
+
+---
+
+### 📅 Timeline
+
+A lightweight vertical timeline for displaying events. Pure Tailwind CSS + Alpine.js, no external dependencies. Supports stacked and alternating layouts, per-event colors, icons, emojis, and scroll-reveal animation.
+
+**Quick Example:**
+```blade
+<flux:timeline :events="$events" />
+<flux:timeline :events="$events" variant="alternating" />
+```
+
+[Full Documentation](docs/timeline.md) | [Examples](demos/timeline-examples/)
+
+---
+
+## FANCY Facade
+
+The `FANCY` facade provides programmatic access to FancyFlux features:
+
+```php
+// Emoji lookup (787+ emojis with slug-based access)
+FANCY::emoji('fire');           // Returns: 🔥
+FANCY::emoji(':)');             // Returns: 😊 (emoticon support!)
+FANCY::emoji()->list();         // Get all emoji slugs
+FANCY::emoji()->search('heart'); // Search emojis
+FANCY::emoji()->emoticons();    // Get all supported emoticons
+
+// Carousel control
+FANCY::carousel('wizard')->next();
+FANCY::carousel('wizard')->goTo('step-3');
+
+// Configuration
+FANCY::prefix();            // Custom prefix or null
+FANCY::components();        // List of components
+```
+
+[Full Documentation](docs/facade.md)
+
+---
+
 ## Documentation
 
 - **[Usage Guide](USAGE.md)** - Comprehensive documentation for all components
@@ -248,11 +230,7 @@ You can also add custom AI guidelines for Fancy Flux by creating a `.ai/guidelin
 
 1. **Update via Composer:**
    ```bash
-   # Update to latest version
    composer update wishborn/fancy-flux
-   
-   # Or update to a specific version
-   composer require wishborn/fancy-flux:^1.0.8
    ```
 
 2. **Clear caches:**
@@ -310,13 +288,6 @@ If you want to migrate to a prefixed namespace:
 3. Once all templates are updated, optionally set `FANCY_FLUX_USE_FLUX_NAMESPACE=false`
 
 See [Prefix Configuration](docs/prefix-configuration.md) for detailed migration steps.
-
-## Requirements
-
-- PHP 8.2+
-- Laravel 10+ / 11+ / 12+
-- Livewire 3.7+ / 4.0+
-- Flux UI 2.0+
 
 ## License
 
