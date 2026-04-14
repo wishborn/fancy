@@ -7,7 +7,7 @@
     like chat controls, drawer actions, and toolbar buttons with full dark mode support.
 
     Features:
-    - Shape variants: default (rounded rectangle), circle (perfect circle for icon-only buttons)
+    - Variants: default (rounded rectangle), circle (perfect circle for icon-only buttons), ghost (transparent, subtle hover)
     - Color prop: standalone color theming (blue, emerald, amber, red, violet, etc.) - independent of states
     - State variants: active, checked, warn, alert (behavioral states, NOT colors when color prop is set)
     - Icon placement: left, right, top, bottom (top/bottom use absolute positioning)
@@ -39,7 +39,7 @@
 --}}
 
 @props([
-    'variant' => 'default', // Shape: 'default' (rounded rectangle) or 'circle' (perfect circle)
+    'variant' => 'default', // 'default' (rounded rectangle), 'circle' (perfect circle), or 'ghost' (transparent, subtle hover)
     'color' => null, // Standalone color: blue, emerald, amber, red, violet, indigo, sky, rose, orange, zinc (overrides state colors)
     'active' => false, // Behavioral state (uses blue if no color set)
     'checked' => false, // Behavioral state (uses emerald if no color set)
@@ -69,6 +69,7 @@
     $size = $size ?? 'md';
     $variant = $variant ?? 'default';
     $isCircle = $variant === 'circle';
+    $isGhost = $variant === 'ghost';
 
     // Resolve emoji slugs to characters using FANCY facade
     $fancyFlux = app(FancyFlux::class);
@@ -118,7 +119,23 @@
         })
         // Color classes - color prop takes precedence, then state-based colors, then default
         // Color prop is standalone and independent of behavioral states (active, checked, warn, alert)
+        // Ghost variant short-circuits to transparent fill with colored text
         ->add(match (true) {
+            // Ghost variant - transparent background, colored text, subtle hover
+            $isGhost && $color === 'blue' => 'bg-transparent text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/50 focus:ring-blue-500',
+            $isGhost && $color === 'emerald' => 'bg-transparent text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/50 focus:ring-emerald-500',
+            $isGhost && $color === 'amber' => 'bg-transparent text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/50 focus:ring-amber-500',
+            $isGhost && $color === 'red' => 'bg-transparent text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50 focus:ring-red-500',
+            $isGhost && $color === 'violet' => 'bg-transparent text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-950/50 focus:ring-violet-500',
+            $isGhost && $color === 'indigo' => 'bg-transparent text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/50 focus:ring-indigo-500',
+            $isGhost && $color === 'sky' => 'bg-transparent text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/50 focus:ring-sky-500',
+            $isGhost && $color === 'rose' => 'bg-transparent text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/50 focus:ring-rose-500',
+            $isGhost && $color === 'orange' => 'bg-transparent text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/50 focus:ring-orange-500',
+            $isGhost && $color === 'zinc' => 'bg-transparent text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 focus:ring-zinc-500',
+            $isGhost && $checked => 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-950 focus:ring-emerald-500',
+            $isGhost && $active => 'bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:hover:bg-blue-950 focus:ring-blue-500',
+            $isGhost && $warn => 'bg-transparent text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/50 focus:ring-amber-500',
+            $isGhost => 'bg-transparent text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 focus:ring-zinc-500',
             // Explicit color prop - always wins
             $color === 'blue' => implode(' ', [
                 'bg-blue-500 text-white border border-blue-600',
@@ -203,11 +220,13 @@
     };
 
     // Determine if button has a colored background (for icon/badge contrast)
-    $hasColoredBackground = $color !== null || $active || $checked;
+    $hasColoredBackground = !$isGhost && ($color !== null || $active || $checked);
     $hasLightBackground = !$hasColoredBackground && !$warn;
 
     // Icon color - use provided iconColor, or white on colored backgrounds, or contextual colors
+    // Ghost variant inherits currentColor from the button text
     $iconColorClass = $iconColor ?? match(true) {
+        $isGhost => 'text-current',
         $hasColoredBackground => 'text-white',
         $warn => 'text-amber-600 dark:text-amber-400',
         default => 'text-zinc-500 dark:text-zinc-400',
@@ -260,6 +279,7 @@
             default => 'text-[11px] px-1.5 min-w-[18px] h-[18px]', // md
         })
         ->add(match (true) {
+            $isGhost => 'bg-current/10 text-current',
             $hasColoredBackground => 'bg-white/20 text-white',
             $warn => 'bg-amber-200 text-amber-800 dark:bg-amber-800 dark:text-amber-200',
             default => 'bg-zinc-200 text-zinc-700 dark:bg-zinc-600 dark:text-zinc-200',

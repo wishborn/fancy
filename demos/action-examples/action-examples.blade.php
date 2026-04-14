@@ -14,6 +14,25 @@
             <flux:action warn>Warning</flux:action>
         </div>
     </flux:card>
+
+    {{-- Ghost Variant --}}
+    <flux:card>
+        <flux:heading size="lg">Ghost Variant</flux:heading>
+        <flux:text class="mt-1 mb-4">Transparent background with subtle hover — pairs with any color.</flux:text>
+        <div class="flex flex-wrap gap-3" data-testid="ghost-variant">
+            <flux:action variant="ghost">Default</flux:action>
+            <flux:action variant="ghost" color="blue">Blue</flux:action>
+            <flux:action variant="ghost" color="emerald" icon="check">Save</flux:action>
+            <flux:action variant="ghost" color="red" icon="trash">Delete</flux:action>
+            <flux:action variant="ghost" color="violet" icon="sparkles">Magic</flux:action>
+            <flux:action variant="ghost" icon="arrow-down-tray">Export</flux:action>
+            <flux:action variant="ghost" active icon="star">Active</flux:action>
+            <flux:action variant="ghost" checked icon="check">Checked</flux:action>
+            <flux:action variant="ghost" warn icon="exclamation-triangle">Warn</flux:action>
+            <flux:action variant="ghost" icon="bell" badge="3">Alerts</flux:action>
+            <flux:action variant="ghost" disabled>Disabled</flux:action>
+        </div>
+    </flux:card>
     
     {{-- Alert (Pulsing) --}}
     <flux:card>
