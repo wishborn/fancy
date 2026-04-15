@@ -145,6 +145,14 @@ $alpineData = "{
     search: '',
     activeCategory: 'smileys',
     categories: " . Js::from($emojiCategories) . ",
+    tones: ['light','medium-light','medium','medium-dark','dark'],
+    preferredTone: (() => { try { return localStorage.getItem('fancy:emoji-tone'); } catch(e) { return null; } })(),
+    tonePickerOpen: null,
+    hoverCapable: (typeof window !== 'undefined' && window.matchMedia) ? window.matchMedia('(hover: hover)').matches : false,
+    pressTimer: null,
+    hoverTimer: null,
+    leaveTimer: null,
+    longPressed: false,
     " . ($attributes->whereStartsWith('wire:model')->first()
         ? "selected: \$wire.entangle('" . $attributes->whereStartsWith('wire:model')->first() . "')" . ($attributes->whereStartsWith('wire:model.live')->first() ? '.live' : '') . ","
         : "selected: " . Js::from($attributes->get('value') ?? '') . ",") . "
@@ -179,10 +187,64 @@ $alpineData = "{
         });
         return results;
     },
-    selectEmoji(emoji) {
-        this.selected = emoji;
+    tonedChar(emoji) {
+        if (!emoji.skin_tones || !this.preferredTone) return emoji.char;
+        const i = this.tones.indexOf(this.preferredTone);
+        return (i >= 0 && emoji.skin_tones[i]) || emoji.char;
+    },
+    setPreferredTone(tone) {
+        this.preferredTone = tone;
+        try {
+            if (tone) localStorage.setItem('fancy:emoji-tone', tone);
+            else localStorage.removeItem('fancy:emoji-tone');
+        } catch (e) {}
+    },
+    selectEmoji(char) {
+        this.selected = char;
         this.search = '';
-        \$refs.dropdown.close();
+        this.tonePickerOpen = null;
+        if (\$refs.dropdown && \$refs.dropdown.close) \$refs.dropdown.close();
+    },
+    pickBase(emoji) {
+        this.selectEmoji(emoji.char);
+    },
+    pickWithTone(emoji, tone) {
+        this.setPreferredTone(tone);
+        const i = this.tones.indexOf(tone);
+        const char = (emoji.skin_tones && emoji.skin_tones[i]) || emoji.char;
+        this.selectEmoji(char);
+    },
+    pickWithCurrentTone(emoji) {
+        this.selectEmoji(this.tonedChar(emoji));
+    },
+    onCellClick(emoji) {
+        if (this.longPressed) { this.longPressed = false; return; }
+        this.pickWithCurrentTone(emoji);
+    },
+    onCellTouchStart(emoji) {
+        if (!emoji.skin_tones) return;
+        this.longPressed = false;
+        this.pressTimer = setTimeout(() => {
+            this.longPressed = true;
+            this.tonePickerOpen = emoji.char + '|' + emoji.name;
+        }, 400);
+    },
+    onCellTouchEnd() {
+        if (this.pressTimer) { clearTimeout(this.pressTimer); this.pressTimer = null; }
+    },
+    onCellMouseEnter(emoji) {
+        if (!emoji.skin_tones || !this.hoverCapable) return;
+        if (this.leaveTimer) { clearTimeout(this.leaveTimer); this.leaveTimer = null; }
+        this.hoverTimer = setTimeout(() => { this.tonePickerOpen = emoji.char + '|' + emoji.name; }, 250);
+    },
+    onCellMouseLeave(emoji) {
+        if (this.hoverTimer) { clearTimeout(this.hoverTimer); this.hoverTimer = null; }
+        const key = emoji.char + '|' + emoji.name;
+        if (this.tonePickerOpen !== key) return;
+        this.leaveTimer = setTimeout(() => { this.tonePickerOpen = null; }, 180);
+    },
+    isTonePickerOpen(emoji) {
+        return this.tonePickerOpen === (emoji.char + '|' + emoji.name);
     },
     onOpen() {
         this.\$nextTick(() => {
@@ -282,15 +344,40 @@ $dropdownAttrs = $attributes->except(['wire:model', 'wire:model.live', 'value', 
         <div class="flex-1 overflow-y-auto p-2" style="scrollbar-width: thin; scrollbar-color: rgb(161 161 170) transparent;">
             <div class="{{ $emojiGridClasses }}">
                 <template x-for="emoji in filteredEmojis" :key="emoji.char + emoji.name">
-                    <button
-                        type="button"
-                        @click="selectEmoji(emoji.char)"
-                        :class="selected === emoji.char ? 'bg-blue-100 dark:bg-blue-900/50' : 'hover:bg-zinc-100 dark:hover:bg-zinc-600'"
-                        class="{{ $emojiButtonClasses }}"
-                        :title="emoji.name"
+                    <div class="relative"
+                        @mouseenter="onCellMouseEnter(emoji)"
+                        @mouseleave="onCellMouseLeave(emoji)"
                     >
-                        <span x-text="emoji.char"></span>
-                    </button>
+                        <button
+                            type="button"
+                            @click="onCellClick(emoji)"
+                            @touchstart="onCellTouchStart(emoji)"
+                            @touchend="onCellTouchEnd()"
+                            @touchcancel="onCellTouchEnd()"
+                            :class="selected === tonedChar(emoji) ? 'bg-blue-100 dark:bg-blue-900/50' : 'hover:bg-zinc-100 dark:hover:bg-zinc-600'"
+                            class="{{ $emojiButtonClasses }} relative"
+                            :title="emoji.name"
+                        >
+                            <span x-text="tonedChar(emoji)"></span>
+                            <span x-show="emoji.skin_tones" class="absolute right-0.5 bottom-0.5 w-1 h-1 rounded-full bg-amber-400" aria-hidden="true"></span>
+                        </button>
+                        <div
+                            x-show="isTonePickerOpen(emoji) && emoji.skin_tones"
+                            x-cloak
+                            class="absolute left-1/2 bottom-full z-20 mb-1 flex -translate-x-1/2 gap-0.5 rounded-md border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-600 dark:bg-zinc-700"
+                            @mouseenter="if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }"
+                            @mouseleave="leaveTimer = setTimeout(() => tonePickerOpen = null, 180)"
+                        >
+                            <button type="button" @click="pickBase(emoji)" class="rounded p-1 text-lg hover:bg-zinc-100 dark:hover:bg-zinc-600" :aria-label="emoji.name + ' no tone'">
+                                <span x-text="emoji.char"></span>
+                            </button>
+                            <template x-for="(toneChar, i) in (emoji.skin_tones || [])" :key="i">
+                                <button type="button" @click="pickWithTone(emoji, tones[i])" class="rounded p-1 text-lg hover:bg-zinc-100 dark:hover:bg-zinc-600" :aria-label="emoji.name + ' ' + tones[i] + ' skin tone'">
+                                    <span x-text="toneChar"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </template>
             </div>
 

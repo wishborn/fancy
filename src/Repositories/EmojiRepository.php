@@ -24,10 +24,12 @@ use Illuminate\Support\Str;
  */
 class EmojiRepository
 {
+    public const SKIN_TONES = ['light', 'medium-light', 'medium', 'medium-dark', 'dark'];
+
     /**
      * Cached emoji data indexed by slug.
      *
-     * @var array<string, array{char: string, name: string, slug: string, category: string}>|null
+     * @var array<string, array{char: string, name: string, slug: string, category: string, skin_tones?: array<string>}>|null
      */
     protected ?array $emojiBySlug = null;
 
@@ -319,13 +321,54 @@ class EmojiRepository
 
         foreach (EmojiData::all() as $emoji) {
             $slug = self::nameToSlug($emoji['name']);
-            $this->emojiBySlug[$slug] = [
+            $entry = [
                 'char' => $emoji['char'],
                 'name' => $emoji['name'],
                 'slug' => $slug,
                 'category' => $emoji['category'],
             ];
+            if (isset($emoji['skin_tones'])) {
+                $entry['skin_tones'] = $emoji['skin_tones'];
+            }
+            $this->emojiBySlug[$slug] = $entry;
             $this->slugList[] = $slug;
         }
+    }
+
+    /**
+     * Get the 5-tone variant array for an emoji slug.
+     *
+     * @return array<string>|null [light, medium-light, medium, medium-dark, dark] or null if unsupported.
+     */
+    public function skinTones(string $slug): ?array
+    {
+        $this->ensureLoaded();
+
+        return $this->emojiBySlug[$slug]['skin_tones'] ?? null;
+    }
+
+    /**
+     * Whether an emoji slug supports skin-tone variants.
+     */
+    public function hasSkinTones(string $slug): bool
+    {
+        return $this->skinTones($slug) !== null;
+    }
+
+    /**
+     * Return the toned variant for an emoji slug, or the base char if unsupported.
+     */
+    public function applyTone(string $slug, ?string $tone): ?string
+    {
+        $base = $this->get($slug);
+        if ($base === null || $tone === null) {
+            return $base;
+        }
+        $idx = array_search($tone, self::SKIN_TONES, true);
+        if ($idx === false) {
+            return $base;
+        }
+        $tones = $this->skinTones($slug);
+        return $tones[$idx] ?? $base;
     }
 }

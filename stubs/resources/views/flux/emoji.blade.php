@@ -26,6 +26,7 @@
 @props([
     'name' => null,
     'size' => null,
+    'tone' => null, // Optional skin tone: light, medium-light, medium, medium-dark, dark
     'label' => null, // Accessible label override
 ])
 
@@ -37,13 +38,21 @@
     // Resolve the emoji using the repository (handles slugs, emoticons, and passthrough)
     $fancyFlux = app(FancyFlux::class);
     $emojiRepo = $fancyFlux->emoji();
-    
+
     // Try to resolve: first as emoticon/slug, then check if it's already an emoji character
     $emojiChar = $name ? $emojiRepo->resolve($name) : null;
-    
+
     // If resolve didn't find it but name is provided, it might be a raw emoji - use as-is
     if ($emojiChar === null && $name !== null && $name !== '') {
         $emojiChar = $name;
+    }
+
+    // Apply skin tone if requested and supported (only works for slug-based names with tone variants)
+    if ($tone && $name) {
+        $toned = $emojiRepo->applyTone($name, $tone);
+        if ($toned !== null) {
+            $emojiChar = $toned;
+        }
     }
 
     // Get accessible label - use provided label, or try to find emoji name from slug

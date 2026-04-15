@@ -70,5 +70,5 @@ return [
     | the routes so you can customize URLs and add authentication/middleware.
     |
     */
-    'enable_demo_routes' => false,
+    'enable_demo_routes' => env('FANCY_FLUX_ENABLE_DEMO_ROUTES', false),
 ];
