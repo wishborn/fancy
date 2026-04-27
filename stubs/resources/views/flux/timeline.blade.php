@@ -143,7 +143,7 @@ $isVertical = !$isHorizontal;
                             <h3 class="font-semibold text-sm text-zinc-900 dark:text-white">{{ $event['title'] }}</h3>
                         @endif
                         @if (!empty($event['description']))
-                            <div class="mt-1 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{!! $event['description'] !!}</div>
+                            <div class="mt-1 text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{{ $event['description'] }}</div>
                         @endif
                     </div>
                 </div>
@@ -214,7 +214,7 @@ $isVertical = !$isHorizontal;
                         <h3 class="font-semibold text-zinc-900 dark:text-white">{{ $event['title'] }}</h3>
                     @endif
                     @if (!empty($event['description']))
-                        <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{!! $event['description'] !!}</div>
+                        <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">{{ $event['description'] }}</div>
                     @endif
                 </div>
             </div>
