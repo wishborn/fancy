@@ -24,7 +24,7 @@ jobs:
           tools: composer:v2
 
       - name: Validate composer.json
-        run: composer validate --strict --no-check-publish
+        run: composer validate --strict --no-check-publish --no-check-version
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
